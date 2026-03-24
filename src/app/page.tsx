@@ -18,36 +18,40 @@ function getCurrentNawaaInfo() {
   const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  // المنطق الخاص بنهاية مارس (فصل الحميمين - نوء سعد الأخبية)
-  // سعد الأخبية يبدأ من 21 مارس ويستمر 13 يوماً
+  // المنطق الخاص بنهاية مارس (فصل الحميمين - نوء السماك)
+  // تم التعديل إلى "السماك" حسب طلب المستخدم
   if (month === 3 && day >= 21) {
     return {
-      name: "سعد الأخبية",
+      name: "السماك",
       season: "الحميمين",
       day_in_nawaa: day - 20,
       days_remaining: 13 - (day - 21),
       progress_percent: Math.round(((day - 21) / 13) * 100),
+      startDate: "21 مارس",
+      endDate: "2 أبريل",
       climate: {
         temperature: "19°C - ربيعي معتدل",
         wind: "جنوبية شرقية",
         rain: "10% - غائم جزئياً",
-        notes: "سمي 'سعد الأخبية' لأن الأرض تدفأ فيه وتخرج الهوام من مخابئها. الجو يميل للاعتدال اللطيف نهاراً."
+        notes: "نحن الآن في نجم السماك من فصل الحميمين. تمتاز هذه الفترة باعتدال الجو نهاراً والبرودة اللطيفة ليلاً، وهي من أفضل أوقات الزراعة الربيعية."
       }
     };
   }
 
-  // Fallback to a default
+  // Fallback
   return {
-    name: "سعد الأخبية",
+    name: "السماك",
     season: "الحميمين",
     day_in_nawaa: 4,
     days_remaining: 9,
     progress_percent: 30,
+    startDate: "21 مارس",
+    endDate: "2 أبريل",
     climate: {
       temperature: "19°C - معتدل",
       wind: "جنوبية نشطة",
       rain: "5% - جاف",
-      notes: "نحن الآن في موسم الحميمين، وتحديداً في منزلة سعد الأخبية التي تمتاز بخروج الزواحف من باطن الأرض."
+      notes: "نحن الآن في نجم السماك، وهو النجم الذي يوافق الاعتدال الربيعي وتزايد ساعات النهار."
     }
   };
 }
@@ -128,7 +132,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-xl text-right mb-16">
             <h2 className="text-4xl font-bold mb-4 tracking-tight">المحاصيل المثالية الآن</h2>
-            <p className="text-lg text-muted-foreground">بناءً على موقعك ونجم "سعد الأخبية" الحالي، هذه هي أفضل الخيارات لمزرعتك.</p>
+            <p className="text-lg text-muted-foreground">بناءً على موقعك ونجم "السماك" الحالي، هذه هي أفضل الخيارات لمزرعتك.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -172,7 +176,7 @@ export default function Home() {
                     <p className="text-sm opacity-90 leading-relaxed">كيف أحمي النخل من السوسة في هذا الوقت؟</p>
                   </div>
                   <div className="bg-primary p-4 rounded-2xl rounded-tl-none mr-12 shadow-lg">
-                    <p className="text-sm font-medium">بناءً على نجم سعد الأخبية، الرطوبة مناسبة لبدء المكافحة الوقائية الآن قبل اشتداد الحرارة.</p>
+                    <p className="text-sm font-medium">بناءً على نجم السماك، الرطوبة مناسبة لبدء المكافحة الوقائية الآن قبل اشتداد الحرارة.</p>
                   </div>
                 </div>
               </div>
