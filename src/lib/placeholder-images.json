@@ -7,16 +7,40 @@
       "imageHint": "saudi farm"
     },
     {
-      "id": "crops-market",
-      "description": "Fresh vegetables and fruits in a traditional market",
-      "imageUrl": "https://picsum.photos/seed/crops2/600/400",
-      "imageHint": "fresh vegetables"
+      "id": "crop-tomato",
+      "description": "Fresh healthy red tomatoes on vine",
+      "imageUrl": "https://picsum.photos/seed/tomato-fresh/600/400",
+      "imageHint": "fresh tomatoes"
     },
     {
-      "id": "farmer-working",
-      "description": "A farmer inspecting palm trees",
-      "imageUrl": "https://picsum.photos/seed/farmer3/600/400",
-      "imageHint": "farmer palm"
+      "id": "crop-pepper",
+      "description": "Healthy green and red bell peppers",
+      "imageUrl": "https://picsum.photos/seed/pepper-fresh/600/400",
+      "imageHint": "bell pepper"
+    },
+    {
+      "id": "crop-parsley",
+      "description": "Fresh green parsley bunch",
+      "imageUrl": "https://picsum.photos/seed/parsley-fresh/600/400",
+      "imageHint": "fresh parsley"
+    },
+    {
+      "id": "crop-alfalfa",
+      "description": "Green alfalfa field",
+      "imageUrl": "https://picsum.photos/seed/alfalfa-fresh/600/400",
+      "imageHint": "alfalfa field"
+    },
+    {
+      "id": "crop-palm",
+      "description": "Healthy date palm tree with fruits",
+      "imageUrl": "https://picsum.photos/seed/palm-fresh/600/400",
+      "imageHint": "date palm"
+    },
+    {
+      "id": "crop-grapes",
+      "description": "Fresh green grapes on vine",
+      "imageUrl": "https://picsum.photos/seed/grapes-fresh/600/400",
+      "imageHint": "fresh grapes"
     }
   ]
 }
