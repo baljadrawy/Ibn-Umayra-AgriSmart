@@ -31,7 +31,7 @@ const CALENDAR_2026 = [
   { id: 15, name: "المرزم", cycle: "الغفر", start: "2026-06-21", end: "2026-07-02", hijriStart: "06 محرم", hijriEnd: "17 محرم", note: "الجو شديد الحرارة والسموم، الرياح غالباً غربية." },
   { id: 16, name: "الذراع", cycle: "الخضر", start: "2026-07-03", end: "2026-07-14", hijriStart: "18 محرم", hijriEnd: "29 محرم", note: "الجو شديد الحرارة، الرياح غالباً غربية، بداية نزول فواكه الطائف." },
   { id: 17, name: "النثرة", cycle: "الخضر", start: "2026-07-15", end: "2026-07-26", hijriStart: "01 صفر", hijriEnd: "12 صفر", note: "الجو صحو شديد الحرارة جاف، الرياح غالباً شرقية إلى شمالية." },
-  { id: 18, name: "الطرف", cycle: "الخضر", start: "2026-07-27", end: "2026-08-07", hijriStart: "13 صفر", hijriEnd: "24 صفر", note: "درجة الحرارة تبدأ في الانخفاض، الرياح غربية غربية شبه مستمرة." },
+  { id: 18, name: "الطرف", cycle: "الخضر", start: "2026-08-07", end: "2026-08-07", hijriStart: "13 صفر", hijriEnd: "24 صفر", note: "درجة الحرارة تبدأ في الانخفاض، الرياح غربية غربية شبه مستمرة." },
   { id: 19, name: "الجبهة", cycle: "الخضر", start: "2026-08-08", end: "2026-08-21", hijriStart: "25 صفر", hijriEnd: "08 ربيع أول", note: "الجو أقل حرارة من سابقه، بعض الأمطار الموضعية." },
   { id: 20, name: "الزبرة", cycle: "الخضر", start: "2026-08-22", end: "2026-09-02", hijriStart: "09 ربيع أول", hijriEnd: "20 ربيع أول", note: "الجو صاف يميل إلى الصفاء، الرياح غربية إلى جنوبية غربية." },
   { id: 21, name: "العطف", cycle: "الخضر", start: "2026-09-03", end: "2026-09-14", hijriStart: "21 ربيع أول", hijriEnd: "03 ربيع ثاني", note: "الجو يميل للاعتدال ولكنه غير لطيف، رياح جنوبية تميل للجفاف." },
@@ -58,14 +58,18 @@ function getCurrentNawaaInfo() {
     const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const elapsed = Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     
+    // تصحيح: استخدام التقويم الميلادي الصريح
+    const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
+    const locale = 'ar-EG'; // لضمان أسماء الأشهر الميلادية
+
     return {
       name: current.name,
       season: current.cycle,
       day_in_nawaa: elapsed,
       days_remaining: duration - elapsed,
       progress_percent: Math.round((elapsed / duration) * 100),
-      startDate: new Date(current.start).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long' }),
-      endDate: new Date(current.end).toLocaleDateString('ar-SA', { day: 'numeric', month: 'long' }),
+      startDate: start.toLocaleDateString(locale, dateOptions),
+      endDate: end.toLocaleDateString(locale, dateOptions),
       hijriStart: current.hijriStart,
       hijriEnd: current.hijriEnd,
       duration: duration,
@@ -78,7 +82,6 @@ function getCurrentNawaaInfo() {
     };
   }
 
-  // Fallback
   return null;
 }
 
