@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from 'react';
 import NawaaCard from '@/components/dashboard/NawaaCard';
 import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
@@ -9,20 +12,44 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Mock data based on corrected Ibn Umayra calendar period
-const currentNawaa = {
-  name: "العطف",
-  season: "الوسم",
-  day_in_nawaa: 8,
-  days_remaining: 5,
-  progress_percent: 62,
-  climate: {
-    temperature: "معتدل يميل للبرودة ليلاً",
-    wind: "شمالية شرقية خفيفة",
-    rain: "احتمالية رذاذ صباحي",
-    notes: "نجم العطف هو النجم الثالث من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
+// Helper to find current Nawaa based on date
+function getCurrentNawaaInfo() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+
+  // Simplified logic for current Nawaa detection in the demo
+  // In a real app, this would use a more robust lookup
+  if (month === 11 || (month === 10 && day >= 16)) {
+     return {
+        name: "العطف (السماك)",
+        season: "الوسم",
+        day_in_nawaa: 8,
+        days_remaining: 5,
+        progress_percent: 62,
+        climate: {
+          temperature: "معتدل يميل للبرودة ليلاً",
+          wind: "شمالية شرقية خفيفة",
+          rain: "احتمالية رذاذ صباحي",
+          notes: "نجم العطف هو النجم الثالث من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
+        }
+     };
   }
-};
+  
+  return {
+    name: "الإكليل",
+    season: "المربعانية",
+    day_in_nawaa: 2,
+    days_remaining: 11,
+    progress_percent: 15,
+    climate: {
+      temperature: "بارد جداً فجراً",
+      wind: "ساكنة إلى خفيفة",
+      rain: "سحب عابرة",
+      notes: "بداية المربعانية، يفضل تغطية الشتلات الحساسة من الصقيع."
+    }
+  };
+}
 
 const recommendations = {
   planting: ["شتلات الطماطم", "الفلفل البارد", "البقدونس", "الخس"],
@@ -38,10 +65,15 @@ const recommendations = {
 };
 
 export default function Home() {
+  const [currentNawaa, setCurrentNawaa] = useState<any>(null);
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-farm');
 
+  useEffect(() => {
+    setCurrentNawaa(getCurrentNawaaInfo());
+  }, []);
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen text-right">
       {/* Hero Section */}
       <section className="relative h-[400px] md:h-[500px] flex items-center overflow-hidden">
         <Image
@@ -78,7 +110,7 @@ export default function Home() {
       <section className="container mx-auto px-4 -mt-12 mb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 h-full">
-            <NawaaCard nawaa={currentNawaa} />
+            {currentNawaa && <NawaaCard nawaa={currentNawaa} />}
           </div>
           <div className="lg:col-span-4 h-full">
             <WeatherCompare />
@@ -95,7 +127,7 @@ export default function Home() {
           <div className="flex justify-between items-end mb-10">
             <div>
               <h2 className="text-3xl font-headline font-bold mb-2">محاصيل الموسم الحالية</h2>
-              <p className="text-muted-foreground">أفضل المحاصيل المناسبة لمناخ منطقتك في نجم العطف</p>
+              <p className="text-muted-foreground">أفضل المحاصيل المناسبة لمناخ منطقتك الآن</p>
             </div>
             <Button variant="link" className="text-primary font-bold group" asChild>
               <Link href="/crops">عرض كل المحاصيل <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" /></Link>
