@@ -4,9 +4,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Leaf, Calendar, Sprout, MessageSquare, LayoutDashboard, Menu, X, Settings } from 'lucide-react';
+import { Leaf, Calendar, Sprout, MessageSquare, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const navItems = [
@@ -51,9 +50,6 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-           <Button size="sm" variant="ghost" className="rounded-full h-10 w-10 p-0 hover:bg-black/5" asChild title="الإعدادات">
-              <Link href="/dashboard"><Settings className="h-5 w-5" /></Link>
-           </Button>
            <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
            </button>

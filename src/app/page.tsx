@@ -7,7 +7,7 @@ import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, ChevronRight, AlertCircle } from 'lucide-react';
+import { Sparkles, ChevronRight, AlertCircle, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -105,8 +105,9 @@ export default function Home() {
       {/* Apple-style Minimal Hero */}
       <section className="relative pt-24 pb-20 px-4">
         <div className="container mx-auto text-center space-y-6">
-          <Badge variant="secondary" className="bg-primary/5 text-primary border-none px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide">
-            المشروع الوطني المطور 2026
+          <Badge variant="secondary" className="bg-primary/5 text-primary border-none px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 w-fit mx-auto">
+            <MapPin className="h-3 w-3" />
+            توصيات مرجع الطائف
           </Badge>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold apple-text-gradient leading-[1.1] tracking-tight">
             التقويم الزراعي المطور <br className="hidden md:block" />
