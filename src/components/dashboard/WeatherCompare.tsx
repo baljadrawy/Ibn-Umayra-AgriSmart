@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, AlertTriangle, RefreshCw, ThermometerSun, Globe } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, RefreshCw, ThermometerSun, MapPin, Navigation } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -18,14 +18,14 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
   const [isSyncing, setIsSyncing] = useState(true);
   const [matchScore, setMatchScore] = useState<number>(0);
   const [liveTemp, setLiveTemp] = useState<number | null>(null);
+  const [locationName, setLocationName] = useState<string>("جاري تحديد الموقع...");
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRealWeather = async () => {
+  const fetchWeather = async (lat: number, lon: number, isAuto: boolean) => {
     setIsSyncing(true);
     setError(null);
     try {
-      // إحداثيات الطائف: خط عرض 21.27، خط طول 40.41
-      const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=21.27&longitude=40.41&current_weather=true');
+      const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
       if (!response.ok) throw new Error('فشل الاتصال بمصدر البيانات');
       
       const data = await response.json();
@@ -35,9 +35,14 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
       // حساب التوافق مع التقويم (المرجع الافتراضي 21 درجة لنجم السماك)
       const expected = parseInt(expectedClimate?.temperature.split('°')[0] || '21');
       const diff = Math.abs(currentTemp - expected);
-      // خصم 5% لكل درجة اختلاف عن المتوقع
       const score = Math.max(0, 100 - (diff * 5)); 
       setMatchScore(Math.round(score));
+      
+      if (isAuto) {
+        setLocationName("موقعك الحالي");
+      } else {
+        setLocationName("الطائف (المرجع)");
+      }
     } catch (err) {
       console.error("Weather fetch error:", err);
       setError("تعذر جلب البيانات الحية");
@@ -46,8 +51,27 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
     }
   };
 
+  const handleLocationDetection = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeather(position.coords.latitude, position.coords.longitude, true);
+        },
+        (error) => {
+          console.warn("Geolocation error, falling back to Taif:", error);
+          // Fallback to Taif
+          fetchWeather(21.27, 40.41, false);
+        },
+        { timeout: 10000 }
+      );
+    } else {
+      // Fallback if geolocation not supported
+      fetchWeather(21.27, 40.41, false);
+    }
+  };
+
   useEffect(() => {
-    fetchRealWeather();
+    handleLocationDetection();
   }, [expectedClimate]);
 
   return (
@@ -61,7 +85,7 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
           {isSyncing ? (
             <span className="flex items-center gap-1"><RefreshCw className="h-3 w-3 animate-spin" /> جاري المزامنة...</span>
           ) : (
-            <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> بيانات حية (Open-Meteo)</span>
+            <span className="flex items-center gap-1"><Navigation className="h-3 w-3" /> بيانات حية</span>
           )}
         </Badge>
       </CardHeader>
@@ -73,7 +97,7 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">توافق البيئة</p>
             </div>
             {!isSyncing && matchScore > 80 && (
-              <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border">
+              <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border border-primary/20">
                 <CheckCircle2 className="h-5 w-5 text-primary" />
               </div>
             )}
@@ -81,6 +105,11 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
         </div>
 
         <div className="space-y-4">
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-muted/30 py-2 rounded-lg">
+            <MapPin className="h-3 w-3 text-primary" />
+            <span className="font-medium">{locationName}</span>
+          </div>
+
           <div className="grid grid-cols-2 gap-3 mt-4">
             <div className="p-4 rounded-2xl bg-muted/30 border border-black/5 text-center">
               <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">الحرارة الحالية</p>
@@ -111,19 +140,19 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
                 {error 
                   ? "تعذر جلب درجات الحرارة الحقيقية، يرجى التحقق من اتصال الإنترنت."
                   : (matchScore > 85 
-                    ? "تطابق ممتاز بين الواقع الميداني وما ورد في تقويم ابن عميرة."
-                    : `درجة الحرارة الحقيقية (${liveTemp}°م) تختلف عن متوسط التقويم. استمر في مراقبة رطوبة التربة وتجنب الري وقت الظهيرة.`)}
+                    ? "تطابق ممتاز بين الواقع الميداني في موقعك وما ورد في تقويم ابن عميرة."
+                    : `درجة الحرارة في موقعك (${liveTemp}°م) تختلف عن متوسط التقويم. استمر في مراقبة رطوبة التربة وتجنب الري وقت الظهيرة.`)}
               </p>
             </div>
           </div>
           
           <button 
-            onClick={fetchRealWeather}
+            onClick={handleLocationDetection}
             className="w-full py-2 text-[10px] text-primary font-bold hover:underline flex items-center justify-center gap-1"
             disabled={isSyncing}
           >
             <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} />
-            تحديث البيانات الحية الآن
+            تحديث الموقع والبيانات الآن
           </button>
         </div>
       </CardContent>
