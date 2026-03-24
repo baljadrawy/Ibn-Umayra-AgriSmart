@@ -12,20 +12,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Helper to find current Nawaa based on Gregorian date accurately
+// Accurate Ibn Umayra logic for the home dashboard
 function getCurrentNawaaInfo() {
   const now = new Date();
   const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  // Logic based on Ibn Umayra solar cycle
-  // Al-Wasm starts Oct 16
-  if (month === 10 && day >= 16) return { name: "الصرفة", season: "الوسم", day_in_nawaa: day - 15, progress: 60, notes: "انصراف الحر وبداية اعتدال الجو." };
-  if (month === 10 && day >= 29) return { name: "العواء", season: "الوسم", day_in_nawaa: day - 28, progress: 15, notes: "بداية برودة الليل." };
-  if (month === 11 && day <= 10) return { name: "العواء", season: "الوسم", day_in_nawaa: day + 2, progress: 70, notes: "بداية برودة الليل." };
-  if (month === 11 && day >= 11 && day <= 23) return { name: "السماك (العطف)", season: "الوسم", day_in_nawaa: day - 10, progress: 50, notes: "كثرة الغيوم والأمطار الرعدية." };
+  // Simple current detection based on accurate calendar dates
+  if (month === 10 && day >= 16 && day <= 28) return { name: "العواء", season: "الوسم", day_in_nawaa: day - 15, days_remaining: 13 - (day - 15), progress_percent: Math.round(((day - 15) / 13) * 100) };
+  if (month === 10 && day >= 29) return { name: "السماك", season: "الوسم", day_in_nawaa: day - 28, days_remaining: 13 - (day - 28), progress_percent: Math.round(((day - 28) / 13) * 100) };
+  if (month === 11 && day <= 10) return { name: "السماك", season: "الوسم", day_in_nawaa: day + 2, days_remaining: 13 - (day + 2), progress_percent: Math.round(((day + 2) / 13) * 100) };
   
-  // Default for demo purposes if outside specific checks
+  // Default values for showcase
   return {
     name: "السماك (العطف)",
     season: "الوسم",
@@ -36,7 +34,7 @@ function getCurrentNawaaInfo() {
       temperature: "معتدل يميل للبرودة ليلاً",
       wind: "شمالية شرقية خفيفة",
       rain: "احتمالية رذاذ صباحي",
-      notes: "نجم العطف هو النجم الثالث من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
+      notes: "نجم العطف هو النجم الثاني من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
     }
   };
 }
@@ -100,7 +98,17 @@ export default function Home() {
       <section className="container mx-auto px-4 -mt-12 mb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 h-full">
-            {currentNawaa && <NawaaCard nawaa={currentNawaa} />}
+            {currentNawaa && (
+              <NawaaCard nawaa={{
+                ...currentNawaa,
+                climate: currentNawaa.climate || {
+                  temperature: "معتدل",
+                  wind: "متغيرة",
+                  rain: "نادر",
+                  notes: "يرجى مراجعة تفاصيل النجم من صفحة التقويم."
+                }
+              }} />
+            )}
           </div>
           <div className="lg:col-span-4 h-full">
             <WeatherCompare />
@@ -115,7 +123,7 @@ export default function Home() {
       <section className="bg-muted/30 py-20 border-y">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-end mb-10">
-            <div>
+            <div className="text-right">
               <h2 className="text-3xl font-headline font-bold mb-2">محاصيل الموسم الحالية</h2>
               <p className="text-muted-foreground">أفضل المحاصيل المناسبة لمناخ منطقتك الآن</p>
             </div>
@@ -137,7 +145,7 @@ export default function Home() {
                   />
                   <Badge className="absolute top-2 right-2 bg-accent text-accent-foreground">موسم الزراعة</Badge>
                 </div>
-                <div className="p-4">
+                <div className="p-4 text-right">
                   <h3 className="font-bold text-lg mb-1">{crop}</h3>
                   <p className="text-sm text-muted-foreground mb-4">وقت النضج المتوقع: ٩٠ يوم</p>
                   <Button variant="outline" size="sm" className="w-full">تفاصيل الزراعة</Button>
@@ -156,23 +164,23 @@ export default function Home() {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.4),transparent)]"></div>
             </div>
             <div className="grid md:grid-cols-2 gap-10 items-center p-8 md:p-16 relative z-10">
-              <div className="text-white space-y-6">
+              <div className="text-white space-y-6 text-right">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold">المستشار الزراعي الذكي بجانبك دائماً</h2>
                 <p className="text-lg text-white/80 leading-relaxed">
                   هل لديك سؤال عن نوع التربة؟ أو وقت التسميد؟ أو مرض أصاب محصولك؟ اسأل وكيلنا الذكي المتدرب على أسرار تقويم ابن عميرة وبيانات الزراعة الحديثة.
                 </p>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-accent/30 flex items-center justify-center">
-                      <CheckCircle2 className="h-5 w-5 text-accent" />
-                    </div>
+                  <div className="flex items-center justify-end gap-3">
                     <span>إجابات فورية باللغة العربية</span>
-                  </div>
-                  <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-accent/30 flex items-center justify-center">
                       <CheckCircle2 className="h-5 w-5 text-accent" />
                     </div>
+                  </div>
+                  <div className="flex items-center justify-end gap-3">
                     <span>نصائح مخصصة لموقعك الجغرافي</span>
+                    <div className="w-8 h-8 rounded-full bg-accent/30 flex items-center justify-center">
+                      <CheckCircle2 className="h-5 w-5 text-accent" />
+                    </div>
                   </div>
                 </div>
                 <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 px-10" asChild>
@@ -181,23 +189,23 @@ export default function Home() {
               </div>
               <div className="hidden md:block">
                 <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-2xl">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                      <Sparkles className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
+                  <div className="flex items-center justify-end gap-3 mb-6">
+                    <div className="text-right">
                       <p className="font-bold text-white">المساعد الذكي</p>
                       <p className="text-xs text-white/60">متصل الآن</p>
                     </div>
+                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 text-white" />
+                    </div>
                   </div>
                   <div className="space-y-4">
-                    <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8">
+                    <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8 text-right">
                       <p className="text-sm text-white/90 leading-relaxed">أهلاً بك يا مزارعنا! كيف يمكنني مساعدتك اليوم بخصوص محصول الطماطم في منطقة الطائف؟</p>
                     </div>
                     <div className="bg-accent/20 p-4 rounded-lg rounded-tl-none mr-8 text-right">
                       <p className="text-sm text-white font-medium">متى أفضل وقت لنقل الشتلات للأرض؟</p>
                     </div>
-                    <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8 border-r-2 border-accent">
+                    <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8 border-r-2 border-accent text-right">
                       <p className="text-sm text-white/90 leading-relaxed">بناءً على تقويم ابن عميرة، نحن الآن في نجم العطف، وهو الوقت المثالي لأن البرد قد انكسر والتربة دافئة بما يكفي للنمو الجيد.</p>
                     </div>
                   </div>
