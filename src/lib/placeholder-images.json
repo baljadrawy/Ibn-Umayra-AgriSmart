@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-farm",
+      "description": "Green lush farm in Saudi Arabia with palm trees",
+      "imageUrl": "https://picsum.photos/seed/agri1/1200/600",
+      "imageHint": "saudi farm"
+    },
+    {
+      "id": "crops-market",
+      "description": "Fresh vegetables and fruits in a traditional market",
+      "imageUrl": "https://picsum.photos/seed/crops2/600/400",
+      "imageHint": "fresh vegetables"
+    },
+    {
+      "id": "farmer-working",
+      "description": "A farmer inspecting palm trees",
+      "imageUrl": "https://picsum.photos/seed/farmer3/600/400",
+      "imageHint": "farmer palm"
+    }
+  ]
 }
