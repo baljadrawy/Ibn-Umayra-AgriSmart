@@ -18,7 +18,8 @@ function getCurrentNawaaInfo() {
   const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  // Logic for late March (Hameem season - Sa'd al-Akhbiya)
+  // المنطق الخاص بنهاية مارس (فصل الحميمين - نوء سعد الأخبية)
+  // سعد الأخبية يبدأ من 21 مارس ويستمر 13 يوماً
   if (month === 3 && day >= 21) {
     return {
       name: "سعد الأخبية",
@@ -30,12 +31,12 @@ function getCurrentNawaaInfo() {
         temperature: "19°C - ربيعي معتدل",
         wind: "جنوبية شرقية",
         rain: "10% - غائم جزئياً",
-        notes: "بداية فصل الحميمين، يخرج الهوام من مخابئه لدفء الأرض، والجو يميل للاعتدال اللطيف."
+        notes: "سمي 'سعد الأخبية' لأن الأرض تدفأ فيه وتخرج الهوام من مخابئها. الجو يميل للاعتدال اللطيف نهاراً."
       }
     };
   }
 
-  // Fallback to a default (if date calculation is complex for this demo)
+  // Fallback to a default
   return {
     name: "سعد الأخبية",
     season: "الحميمين",
@@ -43,10 +44,10 @@ function getCurrentNawaaInfo() {
     days_remaining: 9,
     progress_percent: 30,
     climate: {
-      temperature: "19°C - معتدل بارد",
+      temperature: "19°C - معتدل",
       wind: "جنوبية نشطة",
       rain: "5% - جاف",
-      notes: "نحن الآن في موسم الحميمين، الأجواء لطيفة نهاراً وتميل للبرودة ليلاً."
+      notes: "نحن الآن في موسم الحميمين، وتحديداً في منزلة سعد الأخبية التي تمتاز بخروج الزواحف من باطن الأرض."
     }
   };
 }
@@ -54,7 +55,7 @@ function getCurrentNawaaInfo() {
 const recommendations = {
   planting: ["القرع", "الكوسا", "البامية"],
   activities: ["تجهيز شبكات الري", "مكافحة آفات الربيع"],
-  warnings: ["تذبذب درجات الحرارة بين الليل والنهار"]
+  warnings: ["انتبه من برودة المساء المباغتة"]
 };
 
 export default function Home() {
