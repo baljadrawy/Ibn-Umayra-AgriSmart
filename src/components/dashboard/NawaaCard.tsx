@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, CloudRain, Wind, Thermometer } from 'lucide-react';
+import { CloudRain, Wind, Thermometer, Calendar } from 'lucide-react';
 
 interface NawaaCardProps {
   nawaa: {
@@ -22,69 +22,67 @@ interface NawaaCardProps {
 
 export default function NawaaCard({ nawaa }: NawaaCardProps) {
   return (
-    <Card className="overflow-hidden border-2 border-primary/20 shadow-lg bg-white/50 backdrop-blur-sm">
-      <CardHeader className="bg-primary/5 pb-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <Badge variant="outline" className="mb-2 border-primary text-primary font-bold">
-              موسم {nawaa.season}
-            </Badge>
-            <CardTitle className="text-3xl font-headline font-bold text-primary">
-              نجم {nawaa.name}
-            </CardTitle>
+    <div className="bento-card p-8 flex flex-col justify-between h-full group">
+      <div>
+        <div className="flex justify-between items-start mb-10">
+          <div className="space-y-1">
+            <p className="text-primary font-bold text-sm tracking-widest uppercase">موسم {nawaa.season}</p>
+            <h2 className="text-5xl font-bold tracking-tighter">نجم {nawaa.name}</h2>
           </div>
-          <div className="text-left">
-            <span className="text-4xl font-bold text-primary/40">#{nawaa.day_in_nawaa}</span>
-            <p className="text-xs text-muted-foreground">اليوم في النوء</p>
+          <div className="h-16 w-16 rounded-3xl bg-primary/5 flex items-center justify-center border border-primary/10">
+            <Calendar className="h-8 w-8 text-primary" />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-6 space-y-6">
+
+        <div className="grid grid-cols-2 gap-6 mb-10">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Thermometer className="h-4 w-4" />
+              <span className="text-xs font-semibold">الحرارة</span>
+            </div>
+            <p className="text-xl font-bold">{nawaa.climate.temperature}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Wind className="h-4 w-4" />
+              <span className="text-xs font-semibold">الرياح</span>
+            </div>
+            <p className="text-xl font-bold">{nawaa.climate.wind}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <CloudRain className="h-4 w-4" />
+              <span className="text-xs font-semibold">الأمطار</span>
+            </div>
+            <p className="text-xl font-bold">{nawaa.climate.rain}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span className="text-xs font-semibold">اليوم</span>
+            </div>
+            <p className="text-xl font-bold"># {nawaa.day_in_nawaa}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
         <div className="space-y-2">
-          <div className="flex justify-between text-sm mb-1">
-            <span className="font-medium">التقدم في النوء</span>
-            <span className="text-muted-foreground">متبقي {nawaa.days_remaining} أيام</span>
+          <div className="flex justify-between text-xs font-bold text-muted-foreground">
+            <span>متبقي {nawaa.days_remaining} أيام</span>
+            <span>{nawaa.progress_percent}% مكتمل</span>
           </div>
-          <Progress value={nawaa.progress_percent} className="h-3 bg-secondary" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/40">
-            <Thermometer className="h-5 w-5 text-orange-500" />
-            <div>
-              <p className="text-xs text-muted-foreground">الحرارة</p>
-              <p className="font-semibold text-sm">{nawaa.climate.temperature}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/40">
-            <Wind className="h-5 w-5 text-blue-400" />
-            <div>
-              <p className="text-xs text-muted-foreground">الرياح</p>
-              <p className="font-semibold text-sm">{nawaa.climate.wind}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/40">
-            <CloudRain className="h-5 w-5 text-indigo-500" />
-            <div>
-              <p className="text-xs text-muted-foreground">الأمطار</p>
-              <p className="font-semibold text-sm">{nawaa.climate.rain}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/40">
-            <CalendarDays className="h-5 w-5 text-primary" />
-            <div>
-              <p className="text-xs text-muted-foreground">التوقيت</p>
-              <p className="font-semibold text-sm">مثالي للزراعة</p>
-            </div>
+          <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+             <div 
+               className="h-full bg-primary transition-all duration-1000 ease-out" 
+               style={{ width: `${nawaa.progress_percent}%` }}
+             ></div>
           </div>
         </div>
-
-        <div className="p-4 rounded-xl bg-accent/20 border border-accent/30">
-          <p className="text-sm font-medium leading-relaxed italic text-foreground/80">
-            "{nawaa.climate.notes}"
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+        <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+          {nawaa.climate.notes}
+        </p>
+      </div>
+    </div>
   );
 }

@@ -5,52 +5,26 @@
 
 @layer base {
   :root {
-    --background: 129 44% 97.5%;
-    --foreground: 129 50% 10%;
+    --background: 0 0% 98%; /* Ultra light gray like Apple */
+    --foreground: 0 0% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 129 50% 10%;
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 129 50% 10%;
-    --primary: 129 50% 40%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 142 70% 35%; /* Sophisticated Forest Green */
     --primary-foreground: 0 0% 100%;
-    --secondary: 129 30% 90%;
-    --secondary-foreground: 129 50% 20%;
-    --muted: 129 20% 92%;
-    --muted-foreground: 129 10% 40%;
-    --accent: 70 81% 65%;
-    --accent-foreground: 129 50% 10%;
+    --secondary: 0 0% 92%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 142 70% 35%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 129 20% 85%;
-    --input: 129 20% 85%;
-    --ring: 129 50% 40%;
-    --chart-1: 129 50% 40%;
-    --chart-2: 70 81% 65%;
-    --chart-3: 160 50% 40%;
-    --chart-4: 40 80% 60%;
-    --chart-5: 20 80% 60%;
-    --radius: 0.75rem;
-  }
-  .dark {
-    --background: 129 50% 5%;
-    --foreground: 129 20% 95%;
-    --card: 129 50% 7%;
-    --card-foreground: 129 20% 95%;
-    --popover: 129 50% 7%;
-    --popover-foreground: 129 20% 95%;
-    --primary: 129 50% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 129 30% 15%;
-    --secondary-foreground: 129 20% 90%;
-    --muted: 129 30% 15%;
-    --muted-foreground: 129 10% 65%;
-    --accent: 70 81% 65%;
-    --accent-foreground: 129 50% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 129 30% 20%;
-    --input: 129 30% 20%;
-    --ring: 129 50% 50%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 142 70% 35%;
+    --radius: 1.25rem; /* Larger Apple-style radius */
   }
 }
 
@@ -59,6 +33,20 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-primary/20;
+    font-feature-settings: "cv11", "ss01";
   }
+}
+
+/* Apple-style Blur Glassmorphism */
+.glass {
+  @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
+}
+
+.bento-card {
+  @apply bg-white border border-black/5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-500 ease-out rounded-[2rem];
+}
+
+.apple-text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-b from-black to-black/60;
 }
