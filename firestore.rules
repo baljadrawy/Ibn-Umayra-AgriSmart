@@ -1,0 +1,139 @@
+rules_version = '2';
+
+/**
+ * Ibn Umayra AgriSmart - Firestore Security Rules
+ *
+ * CORE PHILOSOPHY:
+ * This ruleset implements a hybrid security model. It distinguishes between global reference 
+ * data (agricultural calendars, climate zones, and crop details) which is publicly readable 
+ * but strictly read-only for users, and private user-specific data (profiles and farm logs) 
+ * which follows a strict ownership model.
+ *
+ * DATA STRUCTURE:
+ * 1. Global References: /nawaas, /climate_zones, /crops. These contain the logic of the 
+ *    Ibn Umayra calendar and regional Saudi climate data.
+ * 2. User Workspace: /users/{userId} and its subcollections (e.g., /farm_logs). Access is 
+ *    isolated by the Firebase Authentication UID.
+ *
+ * KEY SECURITY DECISIONS:
+ * - Public data is accessible to anyone (including unauthenticated users) to allow for 
+ *   broad informational use of the calendar system.
+ * - User listing is disabled to prevent harvesting of user IDs or telegram handles.
+ * - Ownership is enforced both via the document path and denormalized 'userId' or 'id' fields 
+ *   to ensure relational integrity and high-performance rule evaluation.
+ * - Prototyping Mode: Rules focus on "Who can access" rather than "What the data looks like," 
+ *   allowing for schema flexibility during development.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    /** Checks if the request is from a signed-in user. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** Checks if the provided UID matches the authenticated user. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** Checks if the document exists and the current user is the owner. */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- COLLECTIONS ---
+
+    /**
+     * @description Publicly readable Nawaa periods representing the Ibn Umayra calendar.
+     * @path /nawaas/{nawaaId}
+     * @allow (get) Public access for any user.
+     * @deny (create) Prevents users from modifying the core calendar logic.
+     * @principle Public read with restricted write access.
+     */
+    match /nawaas/{nawaaId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Publicly readable climate zones defining Saudi regions.
+     * @path /climate_zones/{zoneId}
+     * @allow (list) Public listing of all supported zones.
+     * @deny (update) Unauthorized modification of climate parameters.
+     * @principle Public read with restricted write access.
+     */
+    match /climate_zones/{zoneId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+
+      /**
+       * @description Regional adjustments for Nawaa periods.
+       * @path /climate_zones/{zoneId}/zone_adjustments/{zoneAdjustmentId}
+       * @allow (get) Public access for localized recommendations.
+       * @deny (delete) Prevents accidental removal of adjustment data.
+       * @principle Heirarchical public read-only access.
+       */
+      match /zone_adjustments/{zoneAdjustmentId} {
+        allow get, list: if true;
+        allow create, update, delete: if false;
+      }
+
+      /**
+       * @description Planting and harvesting calendars per crop per zone.
+       * @path /climate_zones/{zoneId}/crop_zone_calendars/{cropId}
+       * @allow (get) Any user can view optimal crop timings.
+       * @deny (create) Unauthorized addition to the global crop knowledge base.
+       * @principle Heirarchical public read-only access.
+       */
+      match /crop_zone_calendars/{cropId} {
+        allow get, list: if true;
+        allow create, update, delete: if false;
+      }
+    }
+
+    /**
+     * @description General information about crops.
+     * @path /crops/{cropId}
+     * @allow (get) Public access to crop characteristics.
+     * @deny (update) Modification by non-admin users.
+     * @principle Public read with restricted write access.
+     */
+    match /crops/{cropId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Private user profile and agricultural preferences.
+     * @path /users/{userId}
+     * @allow (create) If the user's UID matches the new document's ID and path.
+     * @deny (list) Prevents listing of all users for privacy.
+     * @principle Strict ownership for private profile data and path consistency.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Private logs of agricultural activities.
+       * @path /users/{userId}/farm_logs/{farmLogId}
+       * @allow (list) The owner can list their own activity history.
+       * @deny (update) Prevents changing the userId to transfer logs between users.
+       * @principle Isolated subcollection access using denormalized owner IDs.
+       */
+      match /farm_logs/{farmLogId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}

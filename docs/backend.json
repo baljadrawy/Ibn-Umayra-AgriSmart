@@ -1,0 +1,564 @@
+{
+  "entities": {
+    "Nawaa": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Nawaa",
+      "type": "object",
+      "description": "Represents a specific period (Nawaa) in the traditional Ibn Umayra agricultural calendar, including climate characteristics and original agricultural advice.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Nawaa entity."
+        },
+        "nameAr": {
+          "type": "string",
+          "description": "The name of the Nawaa in Arabic."
+        },
+        "nameEn": {
+          "type": "string",
+          "description": "The name of the Nawaa in English."
+        },
+        "number": {
+          "type": "number",
+          "description": "The sequential number of the Nawaa within the calendar year (1-28)."
+        },
+        "season": {
+          "type": "string",
+          "description": "The season or period to which this Nawaa belongs (e.g., Al-Wasm)."
+        },
+        "startHijri": {
+          "type": "string",
+          "description": "The start date of the Nawaa in Hijri calendar format.",
+          "format": "date"
+        },
+        "endHijri": {
+          "type": "string",
+          "description": "The end date of the Nawaa in Hijri calendar format.",
+          "format": "date"
+        },
+        "startGregorian": {
+          "type": "string",
+          "description": "The start date of the Nawaa in Gregorian calendar format.",
+          "format": "date"
+        },
+        "endGregorian": {
+          "type": "string",
+          "description": "The end date of the Nawaa in Gregorian calendar format.",
+          "format": "date"
+        },
+        "durationDays": {
+          "type": "number",
+          "description": "The number of days this Nawaa typically lasts."
+        },
+        "temperatureClass": {
+          "type": "string",
+          "description": "A classification of the typical temperature during this Nawaa (e.g., Cold, Moderate, Hot)."
+        },
+        "windDescription": {
+          "type": "string",
+          "description": "A description of the typical wind conditions during this Nawaa."
+        },
+        "rainLikelihood": {
+          "type": "string",
+          "description": "The likelihood of rain during this Nawaa (e.g., Rare, Probable, Expected)."
+        },
+        "climateNotes": {
+          "type": "string",
+          "description": "General climate-related notes and observations for this Nawaa."
+        },
+        "agriNotes": {
+          "type": "string",
+          "description": "Original agricultural advice and recommendations derived from the Ibn Umayra calendar for this Nawaa."
+        }
+      },
+      "required": [
+        "id",
+        "nameAr",
+        "nameEn",
+        "number",
+        "season",
+        "startHijri",
+        "endHijri",
+        "startGregorian",
+        "endGregorian",
+        "durationDays",
+        "temperatureClass",
+        "windDescription",
+        "rainLikelihood",
+        "climateNotes",
+        "agriNotes"
+      ]
+    },
+    "ClimateZone": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ClimateZone",
+      "type": "object",
+      "description": "Defines different climate zones within Saudi Arabia, used to localize agricultural advice.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ClimateZone entity."
+        },
+        "nameAr": {
+          "type": "string",
+          "description": "The name of the climate zone in Arabic."
+        },
+        "nameEn": {
+          "type": "string",
+          "description": "The name of the climate zone in English."
+        },
+        "description": {
+          "type": "string",
+          "description": "A general description of the climate characteristics of this zone."
+        },
+        "avgTempWinter": {
+          "type": "number",
+          "description": "Average winter temperature in Celsius for this zone."
+        },
+        "avgTempSummer": {
+          "type": "number",
+          "description": "Average summer temperature in Celsius for this zone."
+        },
+        "annualRainfallMm": {
+          "type": "number",
+          "description": "Average annual rainfall in millimeters for this zone."
+        },
+        "elevationRange": {
+          "type": "string",
+          "description": "The typical elevation range for this climate zone (e.g., '500-1000m')."
+        },
+        "referenceCity": {
+          "type": "string",
+          "description": "A major city used as a reference point for this climate zone."
+        },
+        "referenceLat": {
+          "type": "number",
+          "description": "Latitude of the reference city for this climate zone."
+        },
+        "referenceLon": {
+          "type": "number",
+          "description": "Longitude of the reference city for this climate zone."
+        }
+      },
+      "required": [
+        "id",
+        "nameAr",
+        "nameEn",
+        "description",
+        "avgTempWinter",
+        "avgTempSummer",
+        "annualRainfallMm",
+        "elevationRange",
+        "referenceCity",
+        "referenceLat",
+        "referenceLon"
+      ]
+    },
+    "ZoneAdjustment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ZoneAdjustment",
+      "type": "object",
+      "description": "Defines specific climate and timing adjustments for Nawaa recommendations based on a climate zone.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ZoneAdjustment entity."
+        },
+        "zoneId": {
+          "type": "string",
+          "description": "Reference to the ClimateZone. (Relationship: ClimateZone 1:N ZoneAdjustment)"
+        },
+        "nawaaId": {
+          "type": "string",
+          "description": "Reference to the Nawaa. (Relationship: Nawaa 1:N ZoneAdjustment)"
+        },
+        "tempOffset": {
+          "type": "number",
+          "description": "Temperature offset in Celsius degrees compared to the base Nawaa recommendations."
+        },
+        "timingOffsetDays": {
+          "type": "number",
+          "description": "Timing offset in days for agricultural activities compared to the base Nawaa recommendations."
+        },
+        "additionalCrops": {
+          "type": "array",
+          "description": "A list of additional crops suitable for this zone during this Nawaa.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excludedCrops": {
+          "type": "array",
+          "description": "A list of crops not suitable for this zone during this Nawaa.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "specialWarnings": {
+          "type": "string",
+          "description": "Special warnings or considerations specific to this zone and Nawaa."
+        },
+        "adjustedNotes": {
+          "type": "string",
+          "description": "Adjusted agricultural recommendations or notes for this zone and Nawaa."
+        }
+      },
+      "required": [
+        "id",
+        "zoneId",
+        "nawaaId",
+        "tempOffset",
+        "timingOffsetDays",
+        "additionalCrops",
+        "excludedCrops",
+        "specialWarnings",
+        "adjustedNotes"
+      ]
+    },
+    "Crop": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Crop",
+      "type": "object",
+      "description": "Stores general information about various agricultural crops.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Crop entity."
+        },
+        "nameAr": {
+          "type": "string",
+          "description": "The name of the crop in Arabic."
+        },
+        "nameEn": {
+          "type": "string",
+          "description": "The name of the crop in English."
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the crop (e.g., Fruits, Vegetables, Grains, Fodder, Trees)."
+        },
+        "idealTempMin": {
+          "type": "number",
+          "description": "The minimum ideal temperature in Celsius for this crop's growth."
+        },
+        "idealTempMax": {
+          "type": "number",
+          "description": "The maximum ideal temperature in Celsius for this crop's growth."
+        },
+        "waterNeeds": {
+          "type": "string",
+          "description": "The water requirements of the crop (e.g., Low, Medium, High)."
+        },
+        "growthDays": {
+          "type": "number",
+          "description": "The typical number of days from planting to harvest for this crop."
+        },
+        "icon": {
+          "type": "string",
+          "description": "URL or identifier for an icon representing the crop.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "nameAr",
+        "nameEn",
+        "category",
+        "idealTempMin",
+        "idealTempMax",
+        "waterNeeds",
+        "growthDays",
+        "icon"
+      ]
+    },
+    "CropZoneCalendar": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CropZoneCalendar",
+      "type": "object",
+      "description": "Defines the optimal planting and harvesting periods (by Nawaa) for a specific crop within a given climate zone.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CropZoneCalendar entry."
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Reference to the Crop. (Relationship: Crop 1:N CropZoneCalendar)"
+        },
+        "zoneId": {
+          "type": "string",
+          "description": "Reference to the ClimateZone. (Relationship: ClimateZone 1:N CropZoneCalendar)"
+        },
+        "plantingNawaaStart": {
+          "type": "string",
+          "description": "Reference to the first Nawaa suitable for planting this crop in this zone. (Relationship: Nawaa 1:N CropZoneCalendar)"
+        },
+        "plantingNawaaEnd": {
+          "type": "string",
+          "description": "Reference to the last Nawaa suitable for planting this crop in this zone. (Relationship: Nawaa 1:N CropZoneCalendar)"
+        },
+        "harvestNawaaStart": {
+          "type": "string",
+          "description": "Reference to the first Nawaa suitable for harvesting this crop in this zone. (Relationship: Nawaa 1:N CropZoneCalendar)"
+        },
+        "harvestNawaaEnd": {
+          "type": "string",
+          "description": "Reference to the last Nawaa suitable for harvesting this crop in this zone. (Relationship: Nawaa 1:N CropZoneCalendar)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Specific notes or recommendations for this crop in this zone."
+        }
+      },
+      "required": [
+        "id",
+        "cropId",
+        "zoneId",
+        "plantingNawaaStart",
+        "plantingNawaaEnd",
+        "harvestNawaaStart",
+        "harvestNawaaEnd",
+        "notes"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the agricultural smart system, storing their profile and preferences.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "telegramId": {
+          "type": "string",
+          "description": "Unique identifier for the user's Telegram account, used for sending notifications."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's name or preferred identifier."
+        },
+        "zoneId": {
+          "type": "string",
+          "description": "Reference to the ClimateZone selected by the user. (Relationship: ClimateZone 1:N User)"
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the user is located."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Optional latitude of the user's location, for more precise weather data."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Optional longitude of the user's location, for more precise weather data."
+        },
+        "notificationsEnabled": {
+          "type": "boolean",
+          "description": "Flag indicating whether the user wishes to receive proactive notifications."
+        },
+        "notificationTime": {
+          "type": "string",
+          "description": "The user's preferred time for receiving daily notifications.",
+          "format": "time"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user account was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "telegramId",
+        "name",
+        "zoneId",
+        "city",
+        "notificationsEnabled",
+        "notificationTime",
+        "createdAt"
+      ]
+    },
+    "FarmLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FarmLog",
+      "type": "object",
+      "description": "Records various agricultural activities performed by a farmer, linked to specific crops and calendar periods.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FarmLog entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who recorded this log. (Relationship: User 1:N FarmLog)"
+        },
+        "cropId": {
+          "type": "string",
+          "description": "Reference to the Crop involved in this activity. (Relationship: Crop 1:N FarmLog)"
+        },
+        "action": {
+          "type": "string",
+          "description": "The type of agricultural action recorded (e.g., planting, harvesting, fertilizing, watering, observation)."
+        },
+        "nawaaId": {
+          "type": "string",
+          "description": "Reference to the Nawaa period during which the activity was logged. (Relationship: Nawaa 1:N FarmLog)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-form notes or observations about the activity."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Optional quantity associated with the activity (e.g., amount of fertilizer, yield)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the farm activity was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "cropId",
+        "action",
+        "nawaaId",
+        "notes",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/nawaas/{nawaaId}",
+        "definition": {
+          "entityName": "Nawaa",
+          "schema": {
+            "$ref": "#/backend/entities/Nawaa"
+          },
+          "description": "Stores the core Nawaa calendar periods. This is a globally readable collection accessible by all users."
+        }
+      },
+      {
+        "path": "/climate_zones/{zoneId}",
+        "definition": {
+          "entityName": "ClimateZone",
+          "schema": {
+            "$ref": "#/backend/entities/ClimateZone"
+          },
+          "description": "Defines various climate zones within Saudi Arabia. This is a globally readable collection accessible by all users.",
+          "params": [
+            {
+              "name": "zoneId",
+              "description": "Unique identifier for the climate zone."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/climate_zones/{zoneId}/zone_adjustments/{zoneAdjustmentId}",
+        "definition": {
+          "entityName": "ZoneAdjustment",
+          "schema": {
+            "$ref": "#/backend/entities/ZoneAdjustment"
+          },
+          "description": "Stores specific climate and timing adjustments for Nawaa recommendations per climate zone. This is a globally readable subcollection accessible by all users. Includes explicit 'zoneId' and 'nawaaId' fields for contextual data.",
+          "params": [
+            {
+              "name": "zoneId",
+              "description": "Identifier of the parent climate zone."
+            },
+            {
+              "name": "zoneAdjustmentId",
+              "description": "Unique identifier for the specific zone adjustment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/crops/{cropId}",
+        "definition": {
+          "entityName": "Crop",
+          "schema": {
+            "$ref": "#/backend/entities/Crop"
+          },
+          "description": "Stores general information about various agricultural crops. This is a globally readable collection accessible by all users.",
+          "params": [
+            {
+              "name": "cropId",
+              "description": "Unique identifier for the crop."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/climate_zones/{zoneId}/crop_zone_calendars/{cropId}",
+        "definition": {
+          "entityName": "CropZoneCalendar",
+          "schema": {
+            "$ref": "#/backend/entities/CropZoneCalendar"
+          },
+          "description": "Defines optimal planting and harvesting periods for a specific crop within a given climate zone. This is a globally readable subcollection, allowing efficient lookup of crop calendars per zone. The 'cropId' in the path serves as the document ID.",
+          "params": [
+            {
+              "name": "zoneId",
+              "description": "Identifier of the parent climate zone."
+            },
+            {
+              "name": "cropId",
+              "description": "Identifier of the crop, serving as the document ID for this specific crop's calendar in this zone."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles and preferences. This collection is private, with documents accessible only by the authenticated user whose UID matches the 'userId' in the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier of the authenticated user (Firebase Authentication UID)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/farm_logs/{farmLogId}",
+        "definition": {
+          "entityName": "FarmLog",
+          "schema": {
+            "$ref": "#/backend/entities/FarmLog"
+          },
+          "description": "Records agricultural activities performed by a user. This subcollection is private, with documents accessible only by the authenticated user. Includes denormalized 'userId' field in the document for authorization independence, ensuring that the owner can be verified without fetching parent data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Identifier of the parent user (Firebase Authentication UID)."
+            },
+            {
+              "name": "farmLogId",
+              "description": "Unique identifier for a specific farm activity log."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure for the Ibn Umayra AgriSmart application prioritizes secure, scalable, and debuggable access by strictly adhering to the core design principles. The approach segregates data into collections based on their security posture: public, globally readable data, and private, user-owned data. This segregation simplifies security rules significantly.\n\n**Authorization Independence (CRITICAL):**\n*   **Public Data:** Collections such as `/nawaas`, `/climate_zones`, `/crops`, and their respective subcollections (`/climate_zones/{zoneId}/zone_adjustments` and `/climate_zones/{zoneId}/crop_zone_calendars`) are designed to be globally readable. Since they have no user-specific authorization requirements, they inherently achieve authorization independence; no `get()` calls are needed in rules.\n*   **Private User Data:** For user-specific data, such as `/users/{userId}` (for User profiles) and `/users/{userId}/farm_logs/{farmLogId}` (for Farm Logs), authorization is based on path-based ownership. The `userId` in the path directly corresponds to `request.auth.uid`. Crucially, `FarmLog` documents explicitly store `userId` as a field (denormalization). This means that a security rule for a `FarmLog` document can directly verify `request.auth.uid == resource.data.userId` (for writes) or `request.auth.uid == request.resource.data.userId` (for creates) and `request.auth.uid == userId` (from the path), without needing to perform a `get()` operation on the parent `/users/{userId}` document. This eliminates cross-document dependencies, enabling atomic operations and making rules robust and efficient.\n\n**Querying for Authorization Posture (QAPs - Rules are not Filters):**\n*   **Public Collections:** The collections `/nawaas`, `/climate_zones`, `/crops`, `/climate_zones/{zoneId}/zone_adjustments`, and `/climate_zones/{zoneId}/crop_zone_calendars` are designed for public read access. Any client can query these collections without requiring specific authorization checks on individual documents, thus supporting efficient and secure `list` operations where the intent is to retrieve all relevant data.\n*   **User-Owned Collections:** For `/users/{userId}` and `/users/{userId}/farm_logs/{farmLogId}`, the QAP is satisfied by the structural design. A user can only access their specific document(s) by providing their `userId` in the path, which must match `request.auth.uid`. For `farm_logs`, a user performing a `list` query on `/users/{userId}/farm_logs` will only retrieve documents that belong to them, as enforced by the `request.auth.uid == userId` rule (from the path) and further validated by the denormalized `userId` field within each `farm_log` document. This ensures that a `list` operation securely returns only the data the authenticated user is authorized to see, without the rules having to act as filters."
+  }
+}
