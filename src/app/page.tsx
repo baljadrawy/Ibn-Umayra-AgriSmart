@@ -7,31 +7,54 @@ import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Sparkles, ChevronRight } from 'lucide-react';
+import { Sparkles, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
+// Function to calculate the current Nawaa based on the date
 function getCurrentNawaaInfo() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+
+  // Logic for late March (Hameem season - Sa'd al-Akhbiya)
+  if (month === 3 && day >= 21) {
+    return {
+      name: "سعد الأخبية",
+      season: "الحميمين",
+      day_in_nawaa: day - 20,
+      days_remaining: 13 - (day - 21),
+      progress_percent: Math.round(((day - 21) / 13) * 100),
+      climate: {
+        temperature: "19°C - ربيعي معتدل",
+        wind: "جنوبية شرقية",
+        rain: "10% - غائم جزئياً",
+        notes: "بداية فصل الحميمين، يخرج الهوام من مخابئه لدفء الأرض، والجو يميل للاعتدال اللطيف."
+      }
+    };
+  }
+
+  // Fallback to a default (if date calculation is complex for this demo)
   return {
-    name: "السماك (العطف)",
-    season: "الوسم",
-    day_in_nawaa: 8,
-    days_remaining: 5,
-    progress_percent: 62,
+    name: "سعد الأخبية",
+    season: "الحميمين",
+    day_in_nawaa: 4,
+    days_remaining: 9,
+    progress_percent: 30,
     climate: {
-      temperature: "24°C - معتدل",
-      wind: "شمالية خفيفة",
-      rain: "15% - رذاذ",
-      notes: "نجم العطف هو النجم الثاني من الوسم، فيه يعتدل النهار وتبرد الليالي."
+      temperature: "19°C - معتدل بارد",
+      wind: "جنوبية نشطة",
+      rain: "5% - جاف",
+      notes: "نحن الآن في موسم الحميمين، الأجواء لطيفة نهاراً وتميل للبرودة ليلاً."
     }
   };
 }
 
 const recommendations = {
-  planting: ["طماطم", "فلفل", "بقدونس"],
-  activities: ["تسميد الأشجار", "تعديل الري"],
-  warnings: ["حماية الشتلات من الرياح"]
+  planting: ["القرع", "الكوسا", "البامية"],
+  activities: ["تجهيز شبكات الري", "مكافحة آفات الربيع"],
+  warnings: ["تذبذب درجات الحرارة بين الليل والنهار"]
 };
 
 export default function Home() {
@@ -104,11 +127,11 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-xl text-right mb-16">
             <h2 className="text-4xl font-bold mb-4 tracking-tight">المحاصيل المثالية الآن</h2>
-            <p className="text-lg text-muted-foreground">بناءً على موقعك ونجم "العطف" الحالي، هذه هي أفضل الخيارات لمزرعتك.</p>
+            <p className="text-lg text-muted-foreground">بناءً على موقعك ونجم "سعد الأخبية" الحالي، هذه هي أفضل الخيارات لمزرعتك.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {['الطماطم', 'الفلفل البارد', 'البقدونس'].map((crop, idx) => (
+            {['البامية', 'الكوسا', 'القرع'].map((crop, idx) => (
               <div key={crop} className="group cursor-pointer">
                 <div className="relative h-80 w-full mb-6 rounded-[2.5rem] overflow-hidden bg-muted">
                   <Image 
@@ -148,7 +171,7 @@ export default function Home() {
                     <p className="text-sm opacity-90 leading-relaxed">كيف أحمي النخل من السوسة في هذا الوقت؟</p>
                   </div>
                   <div className="bg-primary p-4 rounded-2xl rounded-tl-none mr-12 shadow-lg">
-                    <p className="text-sm font-medium">بناءً على نجم العطف، الرطوبة مناسبة لبدء المكافحة الوقائية الآن قبل اشتداد الحرارة.</p>
+                    <p className="text-sm font-medium">بناءً على نجم سعد الأخبية، الرطوبة مناسبة لبدء المكافحة الوقائية الآن قبل اشتداد الحرارة.</p>
                   </div>
                 </div>
               </div>

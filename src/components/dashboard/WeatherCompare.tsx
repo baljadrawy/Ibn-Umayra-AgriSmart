@@ -3,15 +3,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function WeatherCompare() {
   const [matchScore, setMatchScore] = useState<number | null>(null);
 
   useEffect(() => {
-    // Simulate hydration and logic delay
-    setMatchScore(85);
+    // Simulate logic delay
+    setMatchScore(92);
   }, []);
 
   return (
@@ -35,23 +35,23 @@ export default function WeatherCompare() {
         <div className="space-y-4">
           <div className="flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-            <p className="text-sm">توافق ممتاز مع توقعات تقويم ابن عميرة لهذا النوء.</p>
+            <p className="text-sm">توافق عالٍ مع توقعات "ابن عميرة" لنجم سعد الأخبية الحالي.</p>
           </div>
           
           <div className="grid grid-cols-2 gap-2 mt-4">
             <div className="p-3 rounded-md bg-muted/30 text-center">
               <p className="text-xs text-muted-foreground">الحرارة الحالية</p>
-              <p className="text-lg font-bold">24°م</p>
+              <p className="text-lg font-bold">19°م</p>
             </div>
             <div className="p-3 rounded-md bg-muted/30 text-center">
               <p className="text-xs text-muted-foreground">احتمال المطر</p>
-              <p className="text-lg font-bold">15%</p>
+              <p className="text-lg font-bold">10%</p>
             </div>
           </div>
 
           <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-blue-600" />
-            <p className="text-xs text-blue-700">تنبيه: الرياح الشمالية قد تشتد مساءً، تأكد من حماية الشتلات الصغيرة.</p>
+            <p className="text-xs text-blue-700">تنبيه: الأجواء الربيعية دافئة نهاراً، لكن لا تزال باردة ليلاً. حافظ على انتظام الري.</p>
           </div>
         </div>
       </CardContent>
