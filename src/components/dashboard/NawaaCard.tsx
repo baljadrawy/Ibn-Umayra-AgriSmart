@@ -10,6 +10,8 @@ interface NawaaCardProps {
     progress_percent: number;
     startDate: string;
     endDate: string;
+    hijriStart: string;
+    hijriEnd: string;
     duration: number;
     climate: {
       temperature: string;
@@ -25,8 +27,8 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
     <div className="bento-card p-8 flex flex-col justify-between w-full group bg-white">
       <div>
         <div className="flex justify-between items-start mb-8">
-          <div className="space-y-1">
-            <p className="text-primary font-bold text-sm tracking-widest uppercase">موسم {nawaa.season}</p>
+          <div className="space-y-1 text-right">
+            <p className="text-primary font-bold text-sm tracking-widest uppercase">دورة {nawaa.season}</p>
             <h2 className="text-5xl font-bold tracking-tighter">نجم {nawaa.name}</h2>
           </div>
           <div className="h-16 w-16 rounded-3xl bg-primary/5 flex items-center justify-center border border-primary/10">
@@ -35,49 +37,45 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
         </div>
 
         {/* Start, End Dates, and Duration - Apple Style */}
-        <div className="flex items-center gap-4 mb-10 p-4 bg-muted/30 rounded-2xl border border-black/5">
-          <div className="flex-1 text-right">
+        <div className="grid grid-cols-2 gap-4 mb-10">
+          <div className="p-4 bg-muted/30 rounded-2xl border border-black/5 text-right">
             <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">دخول النجم</p>
             <p className="text-sm font-bold">{nawaa.startDate}</p>
+            <p className="text-[10px] text-primary">{nawaa.hijriStart}</p>
           </div>
-          <div className="h-8 w-px bg-black/10" />
-          <div className="flex-1 text-right">
+          <div className="p-4 bg-muted/30 rounded-2xl border border-black/5 text-right">
             <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">خروج النجم</p>
             <p className="text-sm font-bold">{nawaa.endDate}</p>
-          </div>
-          <div className="h-8 w-px bg-black/10" />
-          <div className="flex-1 text-right">
-            <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">المدة</p>
-            <p className="text-sm font-bold">{nawaa.duration} يوماً</p>
+            <p className="text-[10px] text-primary">{nawaa.hijriEnd}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-2 gap-6 mb-10 text-right">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Thermometer className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-muted-foreground justify-end">
               <span className="text-xs font-semibold">الحرارة المتوقعة</span>
+              <Thermometer className="h-4 w-4" />
             </div>
             <p className="text-xl font-bold">{nawaa.climate.temperature}</p>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Wind className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-muted-foreground justify-end">
               <span className="text-xs font-semibold">الرياح</span>
+              <Wind className="h-4 w-4" />
             </div>
             <p className="text-xl font-bold">{nawaa.climate.wind}</p>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <CloudRain className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-muted-foreground justify-end">
               <span className="text-xs font-semibold">الأمطار</span>
+              <CloudRain className="h-4 w-4" />
             </div>
             <p className="text-xl font-bold">{nawaa.climate.rain}</p>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-muted-foreground justify-end">
               <span className="text-xs font-semibold">اليوم الحالي</span>
+              <Clock className="h-4 w-4" />
             </div>
             <p className="text-xl font-bold">يوم # {nawaa.day_in_nawaa}</p>
           </div>
@@ -87,8 +85,8 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
       <div className="space-y-6">
         <div className="space-y-2">
           <div className="flex justify-between text-xs font-bold text-muted-foreground">
-            <span>متبقي {nawaa.days_remaining} أيام</span>
             <span>{nawaa.progress_percent}% مكتمل</span>
+            <span>متبقي {nawaa.days_remaining} أيام</span>
           </div>
           <div className="h-2.5 w-full bg-secondary rounded-full overflow-hidden shadow-inner">
              <div 
@@ -97,7 +95,7 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
              ></div>
           </div>
         </div>
-        <p className="text-sm font-medium text-muted-foreground leading-relaxed italic">
+        <p className="text-sm font-medium text-muted-foreground leading-relaxed italic text-right">
           "{nawaa.climate.notes}"
         </p>
       </div>
