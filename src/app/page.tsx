@@ -58,9 +58,8 @@ function getCurrentNawaaInfo() {
     const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const elapsed = Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     
-    // تصحيح: استخدام التقويم الميلادي الصريح
     const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-    const locale = 'ar-EG'; // لضمان أسماء الأشهر الميلادية
+    const locale = 'ar-EG'; 
 
     return {
       name: current.name,
@@ -74,9 +73,9 @@ function getCurrentNawaaInfo() {
       hijriEnd: current.hijriEnd,
       duration: duration,
       climate: {
-        temperature: "20°م - معتدل",
+        temperature: "21°م - معتدل",
         wind: "جنوبية شرقية",
-        rain: "15% - غيوم عابرة",
+        rain: "10% - غيوم عابرة",
         notes: current.note
       }
     };
@@ -141,7 +140,7 @@ export default function Home() {
           </div>
           <div className="md:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
              <div className="flex">
-                <WeatherCompare />
+                <WeatherCompare expectedClimate={currentNawaa?.climate} />
              </div>
              <div className="flex">
                 <RecommendationList recommendations={{
@@ -184,3 +183,4 @@ export default function Home() {
     </div>
   );
 }
+

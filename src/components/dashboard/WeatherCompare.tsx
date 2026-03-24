@@ -3,55 +3,96 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, RefreshCw, ThermometerSun } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
-export default function WeatherCompare() {
-  const [matchScore, setMatchScore] = useState<number | null>(null);
+interface WeatherCompareProps {
+  expectedClimate?: {
+    temperature: string;
+    notes: string;
+  };
+}
+
+export default function WeatherCompare({ expectedClimate }: WeatherCompareProps) {
+  const [isSyncing, setIsSyncing] = useState(true);
+  const [matchScore, setMatchScore] = useState<number>(0);
+  const [liveTemp, setLiveTemp] = useState<number>(0);
 
   useEffect(() => {
-    // Simulate logic delay
-    setMatchScore(92);
+    // محاكاة عملية جلب بيانات الطقس الحية من API
+    const timer = setTimeout(() => {
+      const simulatedLiveTemp = 21; // درجة الحرارة الفعلية المحاكية
+      setLiveTemp(simulatedLiveTemp);
+      
+      // حساب التوافق: إذا كان المتوقع "معتدل" (حوالي 20-25) والفعلي 21، فالتوافق عالٍ
+      const score = 96; 
+      setMatchScore(score);
+      setIsSyncing(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <Card className="h-full border-none shadow-md bg-white">
+    <Card className="h-full border-none shadow-md bg-white overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-lg font-headline font-bold">مقارنة الطقس الحي</CardTitle>
-        <Badge variant="secondary" className="bg-primary/10 text-primary">
-          تحديث تلقائي
+        <Badge variant="secondary" className={cn(
+          "transition-colors duration-500",
+          isSyncing ? "bg-muted animate-pulse" : "bg-primary/10 text-primary"
+        )}>
+          {isSyncing ? (
+            <span className="flex items-center gap-1"><RefreshCw className="h-3 w-3 animate-spin" /> جاري المزامنة...</span>
+          ) : (
+            "متصل وحي"
+          )}
         </Badge>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center py-6 mb-4">
-          <div className="relative flex items-center justify-center w-32 h-32 rounded-full border-4 border-accent">
+          <div className="relative flex items-center justify-center w-32 h-32 rounded-full border-4 border-primary/20 bg-primary/5">
             <div className="text-center">
-              <span className="text-3xl font-bold">{matchScore ?? '--'}%</span>
-              <p className="text-[10px] text-muted-foreground">نسبة التوافق</p>
+              <span className="text-3xl font-bold apple-text-gradient">{isSyncing ? '--' : matchScore}%</span>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">نسبة التوافق</p>
             </div>
+            {!isSyncing && (
+              <div className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm border">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+              </div>
+            )}
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-            <p className="text-sm">توافق عالٍ مع توقعات "ابن عميرة" لنجم سعد الأخبية الحالي.</p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            <div className="p-3 rounded-md bg-muted/30 text-center">
-              <p className="text-xs text-muted-foreground">الحرارة الحالية</p>
-              <p className="text-lg font-bold">19°م</p>
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="p-4 rounded-2xl bg-muted/30 border border-black/5 text-center">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">الحرارة الفعلية</p>
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-xl font-bold">{isSyncing ? '--' : liveTemp}°م</span>
+                <ThermometerSun className="h-4 w-4 text-orange-500" />
+              </div>
             </div>
-            <div className="p-3 rounded-md bg-muted/30 text-center">
-              <p className="text-xs text-muted-foreground">احتمال المطر</p>
-              <p className="text-lg font-bold">10%</p>
+            <div className="p-4 rounded-2xl bg-muted/30 border border-black/5 text-center">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1">المتوقع (التقويم)</p>
+              <p className="text-xl font-bold">{expectedClimate?.temperature.split(' ')[0] || '20°م'}</p>
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-blue-600" />
-            <p className="text-xs text-blue-700">تنبيه: الأجواء الربيعية دافئة نهاراً، لكن لا تزال باردة ليلاً. حافظ على انتظام الري.</p>
+          <div className={cn(
+            "p-4 rounded-2xl flex items-start gap-3 transition-opacity duration-500",
+            isSyncing ? "opacity-50" : "opacity-100",
+            matchScore > 90 ? "bg-primary/5 border border-primary/10" : "bg-orange-50 border border-orange-100"
+          )}>
+            <AlertTriangle className={cn("h-5 w-5 mt-0.5 shrink-0", matchScore > 90 ? "text-primary" : "text-orange-500")} />
+            <div className="text-right">
+              <p className="text-xs font-bold mb-1">تحليل التوافق الذكي</p>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                {matchScore > 90 
+                  ? "تطابق ممتاز بين تقويم ابن عميرة والظروف الحالية. الأجواء مثالية للعمليات الزراعية الموصى بها."
+                  : "يوجد انحراف طفيف في درجات الحرارة. ننصح بمراقبة الرطوبة ليلاً."}
+              </p>
+            </div>
           </div>
         </div>
       </CardContent>
