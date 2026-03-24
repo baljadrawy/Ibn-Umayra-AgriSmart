@@ -1,14 +1,15 @@
+
 import NawaaCard from '@/components/dashboard/NawaaCard';
 import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Sparkles } from 'lucide-react';
+import { ArrowLeft, MapPin, Sparkles, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Mock data based on Ibn Umayra calendar period "Al-Atf"
+// Mock data based on corrected Ibn Umayra calendar period
 const currentNawaa = {
   name: "العطف",
   season: "الوسم",
@@ -16,23 +17,23 @@ const currentNawaa = {
   days_remaining: 5,
   progress_percent: 62,
   climate: {
-    temperature: "معتدل",
-    wind: "شمالية خفيفة",
-    rain: "محتمل",
-    notes: "الجو يميل للاعتدال، وهو وقت ممتاز لبداية الزراعات الربيعية."
+    temperature: "معتدل يميل للبرودة ليلاً",
+    wind: "شمالية شرقية خفيفة",
+    rain: "احتمالية رذاذ صباحي",
+    notes: "نجم العطف هو النجم الثالث من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
   }
 };
 
 const recommendations = {
-  planting: ["طماطم", "خيار", "فلفل", "بقدونس", "جرجير"],
+  planting: ["شتلات الطماطم", "الفلفل البارد", "البقدونس", "الخس"],
   activities: [
-    "موسم زراعي ممتاز لنقل الشتلات",
-    "تجهيز شبكات الري للزراعات الصيفية القادمة",
-    "بدء التسميد العضوي للأشجار المثمرة"
+    "تسميد الأشجار المتساقطة الأوراق",
+    "تعديل فترات الري لتقليل الهدر",
+    "البدء بزراعة البقوليات الشتوية"
   ],
   warnings: [
-    "راقب الرياح الشمالية الخفيفة مساءً",
-    "احذر من تقلبات الرطوبة النسبية"
+    "تجنب الري الغزير في المساء لتفادي الفطريات",
+    "راقب انخفاض درجات الحرارة المفاجئ فجراً"
   ]
 };
 
@@ -54,13 +55,13 @@ export default function Home() {
         <div className="container mx-auto px-4 z-10 text-white space-y-4">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-sm border border-white/30">
             <MapPin className="h-4 w-4" />
-            <span>منطقتك الحالية: الطائف - المرتفعات</span>
+            <span>المنطقة: الطائف - المرتفعات</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-headline font-bold leading-tight max-w-2xl">
             نزرع بالخبرة،<br /> وننمو بالذكاء الاصطناعي
           </h1>
-          <p className="text-lg md:text-xl text-white/80 max-w-xl">
-            اكتشف أسرار تقويم ابن عميرة الزراعي مدعوماً بأحدث تقنيات الذكاء الاصطناعي لمساعدتك في الحصول على أفضل محصول.
+          <p className="text-lg md:text-xl text-white/80 max-w-xl font-medium">
+            اكتشف أسرار تقويم ابن عميرة الزراعي في نسخته الرقمية المطورة لمزارعي المملكة.
           </p>
           <div className="flex flex-wrap gap-4 pt-4">
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8" asChild>
@@ -116,7 +117,7 @@ export default function Home() {
                 </div>
                 <div className="p-4">
                   <h3 className="font-bold text-lg mb-1">{crop}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">وقت النضج: ٩٠ يوم</p>
+                  <p className="text-sm text-muted-foreground mb-4">وقت النضج المتوقع: ٩٠ يوم</p>
                   <Button variant="outline" size="sm" className="w-full">تفاصيل الزراعة</Button>
                 </div>
               </div>
@@ -135,7 +136,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-10 items-center p-8 md:p-16 relative z-10">
               <div className="text-white space-y-6">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold">المستشار الزراعي الذكي بجانبك دائماً</h2>
-                <p className="text-lg text-white/80">
+                <p className="text-lg text-white/80 leading-relaxed">
                   هل لديك سؤال عن نوع التربة؟ أو وقت التسميد؟ أو مرض أصاب محصولك؟ اسأل وكيلنا الذكي المتدرب على أسرار تقويم ابن عميرة وبيانات الزراعة الحديثة.
                 </p>
                 <div className="space-y-4">
@@ -169,13 +170,13 @@ export default function Home() {
                   </div>
                   <div className="space-y-4">
                     <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8">
-                      <p className="text-sm text-white/90">أهلاً بك يا مزارعنا! كيف يمكنني مساعدتك اليوم بخصوص محصول الطماطم في منطقة الطائف؟</p>
+                      <p className="text-sm text-white/90 leading-relaxed">أهلاً بك يا مزارعنا! كيف يمكنني مساعدتك اليوم بخصوص محصول الطماطم في منطقة الطائف؟</p>
                     </div>
                     <div className="bg-accent/20 p-4 rounded-lg rounded-tl-none mr-8 text-right">
                       <p className="text-sm text-white font-medium">متى أفضل وقت لنقل الشتلات للأرض؟</p>
                     </div>
-                    <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8">
-                      <p className="text-sm text-white/90">بناءً على تقويم ابن عميرة، نحن الآن في نجم العطف، وهو الوقت المثالي لأن البرد قد انكسر والتربة دافئة بما يكفي.</p>
+                    <div className="bg-white/10 p-4 rounded-lg rounded-tr-none ml-8 border-r-2 border-accent">
+                      <p className="text-sm text-white/90 leading-relaxed">بناءً على تقويم ابن عميرة، نحن الآن في نجم العطف، وهو الوقت المثالي لأن البرد قد انكسر والتربة دافئة بما يكفي للنمو الجيد.</p>
                     </div>
                   </div>
                 </div>
@@ -185,25 +186,5 @@ export default function Home() {
         </div>
       </section>
     </div>
-  );
-}
-
-function CheckCircle2(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
   );
 }
