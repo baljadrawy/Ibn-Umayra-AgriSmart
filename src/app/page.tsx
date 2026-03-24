@@ -12,33 +12,34 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Function to calculate the current Nawaa based on the date
+// وظيفة لحساب النوء الحالي بناءً على التاريخ الفعلي لعام 2026
 function getCurrentNawaaInfo() {
   const now = new Date();
   const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  // المنطق الخاص بنهاية مارس (فصل الحميمين - نوء السماك)
-  // تم التعديل إلى "السماك" حسب طلب المستخدم
+  // حسب تقويم ابن عميرة: نجم السماك يبدأ في 21 مارس لمدة 13 يوماً
   if (month === 3 && day >= 21) {
+    const dayInNawaa = day - 20;
     return {
       name: "السماك",
       season: "الحميمين",
-      day_in_nawaa: day - 20,
-      days_remaining: 13 - (day - 21),
-      progress_percent: Math.round(((day - 21) / 13) * 100),
+      day_in_nawaa: dayInNawaa,
+      days_remaining: 13 - dayInNawaa,
+      progress_percent: Math.round((dayInNawaa / 13) * 100),
       startDate: "21 مارس",
       endDate: "2 أبريل",
+      duration: 13,
       climate: {
-        temperature: "19°C - ربيعي معتدل",
+        temperature: "20°م - معتدل",
         wind: "جنوبية شرقية",
-        rain: "10% - غائم جزئياً",
-        notes: "نحن الآن في نجم السماك من فصل الحميمين. تمتاز هذه الفترة باعتدال الجو نهاراً والبرودة اللطيفة ليلاً، وهي من أفضل أوقات الزراعة الربيعية."
+        rain: "15% - غيوم عابرة",
+        notes: "نحن الآن في نجم 'السماك'، أول نجوم الحميمين. يتساوى فيه الليل والنهار، وتبدأ الأرض بالدفء الفعلي، وهو وقت مثالي لغرس معظم الشتلات."
       }
     };
   }
 
-  // Fallback
+  // Fallback (إعدادات افتراضية للسماك في حال كان التاريخ خارج النطاق للتجربة)
   return {
     name: "السماك",
     season: "الحميمين",
@@ -47,19 +48,20 @@ function getCurrentNawaaInfo() {
     progress_percent: 30,
     startDate: "21 مارس",
     endDate: "2 أبريل",
+    duration: 13,
     climate: {
-      temperature: "19°C - معتدل",
-      wind: "جنوبية نشطة",
+      temperature: "19°م - ربيعي معتدل",
+      wind: "هادئة",
       rain: "5% - جاف",
-      notes: "نحن الآن في نجم السماك، وهو النجم الذي يوافق الاعتدال الربيعي وتزايد ساعات النهار."
+      notes: "نجم السماك: بداية فصل الحميمين، فيه يعتدل الجو وتورق الأشجار."
     }
   };
 }
 
-const recommendations = {
-  planting: ["القرع", "الكوسا", "البامية"],
-  activities: ["تجهيز شبكات الري", "مكافحة آفات الربيع"],
-  warnings: ["انتبه من برودة المساء المباغتة"]
+const currentRecommendations = {
+  planting: ["البامية", "الكوسا", "الفلفل", "الباذنجان"],
+  activities: ["بدء ري الأشجار المتساقطة", "تسميد أحواض الخضار"],
+  warnings: ["مراقبة نشاط الحشرات الربيعية", "تجنب التعطيش المفاجئ"]
 };
 
 export default function Home() {
@@ -95,7 +97,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hero Image / Video Box */}
+      {/* Hero Image Box */}
       <section className="container mx-auto px-4 mb-24">
         <div className="relative h-[400px] md:h-[600px] rounded-[3rem] overflow-hidden shadow-2xl border border-black/5">
           <Image
@@ -112,31 +114,31 @@ export default function Home() {
 
       {/* Bento Grid Dashboard */}
       <section className="container mx-auto px-4 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-full">
-          <div className="md:col-span-5 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+          <div className="md:col-span-5 flex">
             {currentNawaa && <NawaaCard nawaa={currentNawaa} />}
           </div>
-          <div className="md:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-             <div className="h-full">
+          <div className="md:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="flex">
                 <WeatherCompare />
              </div>
-             <div className="h-full">
-                <RecommendationList recommendations={recommendations} />
+             <div className="flex">
+                <RecommendationList recommendations={currentRecommendations} />
              </div>
           </div>
         </div>
       </section>
 
-      {/* Content Section: Featured Crops */}
+      {/* Featured Crops */}
       <section className="bg-white py-32 border-t">
         <div className="container mx-auto px-4">
           <div className="max-w-xl text-right mb-16">
             <h2 className="text-4xl font-bold mb-4 tracking-tight">المحاصيل المثالية الآن</h2>
-            <p className="text-lg text-muted-foreground">بناءً على موقعك ونجم "السماك" الحالي، هذه هي أفضل الخيارات لمزرعتك.</p>
+            <p className="text-lg text-muted-foreground">بناءً على موقعك ونجم "{currentNawaa?.name || 'السماك'}" الحالي، هذه هي أفضل الخيارات لمزرعتك.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {['البامية', 'الكوسا', 'القرع'].map((crop, idx) => (
+            {['البامية', 'الكوسا', 'الباذنجان'].map((crop, idx) => (
               <div key={crop} className="group cursor-pointer">
                 <div className="relative h-80 w-full mb-6 rounded-[2.5rem] overflow-hidden bg-muted">
                   <Image 
@@ -155,7 +157,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Section with Apple feel */}
+      {/* AI Section */}
       <section className="py-32 bg-black text-white overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-20 items-center">
@@ -173,10 +175,10 @@ export default function Home() {
               <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 p-10 rounded-[3rem] shadow-2xl">
                 <div className="space-y-6">
                   <div className="bg-white/10 p-4 rounded-2xl rounded-tr-none ml-12">
-                    <p className="text-sm opacity-90 leading-relaxed">كيف أحمي النخل من السوسة في هذا الوقت؟</p>
+                    <p className="text-sm opacity-90 leading-relaxed">هل وقت زراعة البامية مناسب الآن في السماك؟</p>
                   </div>
                   <div className="bg-primary p-4 rounded-2xl rounded-tl-none mr-12 shadow-lg">
-                    <p className="text-sm font-medium">بناءً على نجم السماك، الرطوبة مناسبة لبدء المكافحة الوقائية الآن قبل اشتداد الحرارة.</p>
+                    <p className="text-sm font-medium">نعم، يعتبر السماك من أفضل الأوقات لزراعة البامية لدفء الأرض واعتدال الجو، وهو ما يضمن إنباتاً سريعاً.</p>
                   </div>
                 </div>
               </div>
