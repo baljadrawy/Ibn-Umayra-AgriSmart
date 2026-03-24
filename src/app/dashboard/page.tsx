@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CloudRain, Database, Cpu, Settings, Globe, ShieldCheck, Zap, Activity, Radio, AlertTriangle, RefreshCw } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Smartphone, Database, Cpu, Settings, Globe, ShieldCheck, Zap, Activity, Radio, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function ControlPanel() {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastSync, setLastSync] = useState<string>("منذ 4 ساعات");
+  const [lastSync, setLastSync] = useState<string>("منذ دقيقتين");
   const [sources, setSources] = useState({
     weather: true,
     agriDb: true,
@@ -39,7 +39,7 @@ export default function ControlPanel() {
             <Settings className="h-8 w-8" />
             لوحة تحكم الربط الذكي
           </h1>
-          <p className="text-muted-foreground mt-2">إدارة الاتصال بمصادر البيانات الخارجية والمستشعرات الميدانية وتحديث التقويم آلياً.</p>
+          <p className="text-muted-foreground mt-2">إدارة القراءات الميدانية ومصادر البيانات المحلية وتحديث التقويم.</p>
         </div>
         <Badge variant="outline" className="px-4 py-1.5 border-primary text-primary bg-primary/5 flex gap-2 rounded-full">
           <Zap className="h-3 w-3" />
@@ -47,11 +47,11 @@ export default function ControlPanel() {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-right">
         <Card className="bento-card border-none bg-primary text-primary-foreground p-2">
           <CardHeader className="pb-2">
-            <CardDescription className="text-primary-foreground/70 text-right">إجمالي المصادر المتصلة</CardDescription>
-            <CardTitle className="text-4xl text-right">2 / 4</CardTitle>
+            <CardDescription className="text-primary-foreground/70">المصادر النشطة</CardDescription>
+            <CardTitle className="text-4xl">2 / 4</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-1 mt-4">
@@ -63,20 +63,20 @@ export default function ControlPanel() {
           </CardContent>
         </Card>
         <Card className="bento-card border-none p-2">
-          <CardHeader className="pb-2 text-right">
-            <CardDescription>دقة البيانات الحالية</CardDescription>
+          <CardHeader className="pb-2">
+            <CardDescription>موثوقية البيانات</CardDescription>
             <CardTitle className="text-4xl">98%</CardTitle>
           </CardHeader>
-          <CardContent className="text-right">
-            <Badge variant="secondary" className="bg-green-100 text-green-700 border-none rounded-full">موثوق جداً</Badge>
+          <CardContent>
+            <Badge variant="secondary" className="bg-green-100 text-green-700 border-none rounded-full">قراءة ميدانية</Badge>
           </CardContent>
         </Card>
         <Card className="bento-card border-none p-2">
-          <CardHeader className="pb-2 text-right">
-            <CardDescription>آخر تحديث للتقويم</CardDescription>
+          <CardHeader className="pb-2">
+            <CardDescription>آخر قراءة مدخلة</CardDescription>
             <CardTitle className="text-xl">{lastSync}</CardTitle>
           </CardHeader>
-          <CardContent className="text-right">
+          <CardContent>
             <Button 
               variant="outline" 
               size="sm" 
@@ -85,7 +85,7 @@ export default function ControlPanel() {
               disabled={isRefreshing}
             >
               {isRefreshing ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
-              {isRefreshing ? "جاري التحديث..." : "تحديث يدوي"}
+              {isRefreshing ? "جاري التحديث..." : "تحديث القراءة"}
             </Button>
           </CardContent>
         </Card>
@@ -97,23 +97,23 @@ export default function ControlPanel() {
           <div className={cn("h-1.5 transition-colors duration-500", sources.weather ? 'bg-primary' : 'bg-muted')} />
           <CardHeader className="flex flex-row items-center gap-4 space-y-0">
             <div className={cn("p-3 rounded-2xl transition-colors", sources.weather ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground')}>
-              <CloudRain className="h-6 w-6" />
+              <Smartphone className="h-6 w-6" />
             </div>
             <div className="flex-1 text-right">
-              <CardTitle className="text-xl">بيانات الطقس الحية</CardTitle>
-              <CardDescription>توقعات الأرصاد الجوية</CardDescription>
+              <CardTitle className="text-xl">القراءة الميدانية (الجوال)</CardTitle>
+              <CardDescription>مدخلات المستخدم المباشرة</CardDescription>
             </div>
             <Switch checked={sources.weather} onCheckedChange={() => toggleSource('weather')} />
           </CardHeader>
           <CardContent className="text-right">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              مقارنة توقعات تقويم ابن عميرة مع الحالة الجوية الفعلية وتعديل التوصيات فوراً بناءً على درجات الحرارة والرياح.
+              مقارنة درجة الحرارة التي تشاهدها في جوالك مع توقعات تقويم ابن عميرة وتصحيح التوصيات بناءً على الواقع الميداني.
             </p>
             {sources.weather && (
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between text-[10px] bg-primary/5 p-3 rounded-xl border border-primary/10">
-                  <span className="text-primary font-bold">OpenWeather API v3.0</span>
-                  <span className="flex items-center gap-1 text-primary"><Radio className="h-3 w-3 animate-pulse" /> متصل</span>
+                  <span className="text-primary font-bold">نمط القراءة اليدوية</span>
+                  <span className="flex items-center gap-1 text-primary"><Radio className="h-3 w-3" /> نشط</span>
                 </div>
               </div>
             )}
@@ -129,18 +129,18 @@ export default function ControlPanel() {
             </div>
             <div className="flex-1 text-right">
               <CardTitle className="text-xl">قاعدة البيانات الزراعية</CardTitle>
-              <CardDescription>توصيات المحاصيل الرسمية</CardDescription>
+              <CardDescription>توصيات المحاصيل المعتمدة</CardDescription>
             </div>
             <Switch checked={sources.agriDb} onCheckedChange={() => toggleSource('agriDb')} />
           </CardHeader>
           <CardContent className="text-right">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              تحديث آلي لقائمة الآفات الزراعية والحلول العلاجية وتوصيات البذور المعتمدة لكل حزام مناخي في المملكة.
+              تحديث قائمة الآفات الزراعية والحلول العلاجية وتوصيات البذور المعتمدة لكل حزام مناخي في المملكة.
             </p>
             {sources.agriDb && (
               <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-between">
                 <span className="text-[10px] text-primary font-bold flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3" /> مزامنة مع المراجع الرسمية
+                  <ShieldCheck className="h-3 w-3" /> مزامنة مع المراجع المحلية
                 </span>
                 <span className="text-[10px] text-primary font-bold">نشط</span>
               </div>
@@ -163,16 +163,8 @@ export default function ControlPanel() {
           </CardHeader>
           <CardContent className="text-right">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              استقبال البيانات المباشرة من حقولك عبر بروتوكول MQTT وتفعيل أنظمة الري الذكية بناءً على حاجة المحصول الفعلية.
+              استقبال البيانات المباشرة من حقولك وتفعيل أنظمة الري الذكية بناءً على حاجة المحصول الفعلية (قريباً).
             </p>
-            {!sources.iotSensors && (
-              <div className="mt-4 p-3 rounded-xl bg-muted/50 border border-dashed flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" /> لا توجد أجهزة متصلة
-                </span>
-                <Button variant="link" size="sm" className="h-auto p-0 text-[10px] text-primary">إضافة جهاز +</Button>
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -191,7 +183,7 @@ export default function ControlPanel() {
           </CardHeader>
           <CardContent className="text-right">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              مراقبة صحة المحاصيل من الفضاء والكشف المبكر عن الإجهاد المائي أو الإصابات الحشرية الواسعة في مساحاتك الزراعية.
+              مراقبة صحة المحاصيل من الفضاء والكشف المبكر عن الإجهاد المائي أو الإصابات الحشرية (قريباً).
             </p>
           </CardContent>
         </Card>
