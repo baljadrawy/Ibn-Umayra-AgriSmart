@@ -3,12 +3,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, ChevronRight, MapPin, Info, Sun, Snowflake, Leaf, Sprout } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Info, Sun, Snowflake, Leaf, Sprout } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-// Accurate Ibn Umayra Calendar Structure
-// This calendar is solar-based, so dates are fixed in Gregorian.
+// Accurate Ibn Umayra Calendar Structure (Solar-based)
 const seasons = [
   { 
     name: "فصل الخريف (الوسم)", 
@@ -76,7 +74,6 @@ export default function YearlyCalendar() {
 
   const getHijriDate = (month: number, day: number) => {
     try {
-      // Use current year for visualization
       const year = new Date().getFullYear();
       const date = new Date(year, month - 1, day);
       return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
@@ -99,6 +96,13 @@ export default function YearlyCalendar() {
     const year = currentDate.getFullYear();
     const start = new Date(year, month - 1, day);
     const end = new Date(start.getTime() + (days - 1) * 24 * 60 * 60 * 1000);
+    
+    // Simple year-wrap handling for periods starting in Dec and ending in Jan
+    if (month === 12 && day + days > 31) {
+        const nextYearEnd = new Date(year + 1, 0, (day + days) - 32);
+        return (currentDate >= start) || (currentDate <= nextYearEnd);
+    }
+
     return currentDate >= start && currentDate <= end;
   };
 
@@ -111,14 +115,14 @@ export default function YearlyCalendar() {
             تقويم ابن عميرة الزراعي
           </h1>
           <p className="text-muted-foreground text-lg">
-            دليل الأنواء والمواسم - مرجع المزارع في المملكة
+            دليل الأنواء والمواسم - المرجعية الشمسية (الميلادية) مع المقابل الهجري
           </p>
         </div>
         <div className="flex items-center gap-4 bg-white p-3 rounded-xl border shadow-sm">
           <MapPin className="h-5 w-5 text-primary" />
           <div className="text-right">
             <p className="text-xs text-muted-foreground leading-none mb-1">المنطقة المرجعية</p>
-            <p className="font-bold text-sm">الحجاز والمرتفعات (الطائف)</p>
+            <p className="font-bold text-sm">الحجاز والمرتفعات</p>
           </div>
         </div>
       </div>
@@ -128,9 +132,9 @@ export default function YearlyCalendar() {
           <Info className="h-6 w-6 text-primary" />
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-lg mb-1">دليل الاستخدام</h3>
+          <h3 className="font-bold text-lg mb-1">دليل التقويم</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            يعتمد هذا التقويم على **الدورة الشمسية (الميلادية)** لثبات الفصول الزراعية فيها. يتم عرض التاريخ الهجري المقابل كمرجع إضافي. كل نوء يستمر لمدة 13 يوماً.
+            تم ضبط التقويم بناءً على **التاريخ الميلادي** لثبات الفصول الزراعية (دورة الشمس). يتم عرض التاريخ الهجري المقابل كمرجع إضافي للمزارعين.
           </p>
         </div>
       </div>
@@ -163,17 +167,17 @@ export default function YearlyCalendar() {
                       <CardTitle className="text-2xl font-bold font-headline mb-2">{period.name}</CardTitle>
                       <div className="space-y-1">
                         <div className="text-sm font-bold text-primary bg-primary/10 inline-block px-3 py-1 rounded-md">
-                          يبدأ في: {formatMiladiDate(period.startMonth, period.startDay)}
+                          ميلادي: {formatMiladiDate(period.startMonth, period.startDay)}
                         </div>
                         <p className="text-xs text-muted-foreground font-medium mt-1">
-                          الموافق تقريباً: {getHijriDate(period.startMonth, period.startDay)}
+                          هجري (تقريبي): {getHijriDate(period.startMonth, period.startDay)}
                         </p>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">المدة: {period.days} يوماً</span>
-                        <Badge variant="secondary" className="text-[9px] font-bold">فترة {season.name.split(' ')[0]}</Badge>
+                        <Badge variant="secondary" className="text-[9px] font-bold">فصل {season.name.split(' ')[0]}</Badge>
                       </div>
                       <div className="p-3 rounded-lg bg-muted/50 border border-dashed border-primary/20">
                         <p className="text-sm text-foreground/80 leading-relaxed italic">

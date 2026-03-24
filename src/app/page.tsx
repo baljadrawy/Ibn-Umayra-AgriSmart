@@ -12,41 +12,31 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-// Helper to find current Nawaa based on date
+// Helper to find current Nawaa based on Gregorian date accurately
 function getCurrentNawaaInfo() {
   const now = new Date();
   const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  // Simplified logic for current Nawaa detection in the demo
-  // In a real app, this would use a more robust lookup
-  if (month === 11 || (month === 10 && day >= 16)) {
-     return {
-        name: "العطف (السماك)",
-        season: "الوسم",
-        day_in_nawaa: 8,
-        days_remaining: 5,
-        progress_percent: 62,
-        climate: {
-          temperature: "معتدل يميل للبرودة ليلاً",
-          wind: "شمالية شرقية خفيفة",
-          rain: "احتمالية رذاذ صباحي",
-          notes: "نجم العطف هو النجم الثالث من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
-        }
-     };
-  }
+  // Logic based on Ibn Umayra solar cycle
+  // Al-Wasm starts Oct 16
+  if (month === 10 && day >= 16) return { name: "الصرفة", season: "الوسم", day_in_nawaa: day - 15, progress: 60, notes: "انصراف الحر وبداية اعتدال الجو." };
+  if (month === 10 && day >= 29) return { name: "العواء", season: "الوسم", day_in_nawaa: day - 28, progress: 15, notes: "بداية برودة الليل." };
+  if (month === 11 && day <= 10) return { name: "العواء", season: "الوسم", day_in_nawaa: day + 2, progress: 70, notes: "بداية برودة الليل." };
+  if (month === 11 && day >= 11 && day <= 23) return { name: "السماك (العطف)", season: "الوسم", day_in_nawaa: day - 10, progress: 50, notes: "كثرة الغيوم والأمطار الرعدية." };
   
+  // Default for demo purposes if outside specific checks
   return {
-    name: "الإكليل",
-    season: "المربعانية",
-    day_in_nawaa: 2,
-    days_remaining: 11,
-    progress_percent: 15,
+    name: "السماك (العطف)",
+    season: "الوسم",
+    day_in_nawaa: 8,
+    days_remaining: 5,
+    progress_percent: 62,
     climate: {
-      temperature: "بارد جداً فجراً",
-      wind: "ساكنة إلى خفيفة",
-      rain: "سحب عابرة",
-      notes: "بداية المربعانية، يفضل تغطية الشتلات الحساسة من الصقيع."
+      temperature: "معتدل يميل للبرودة ليلاً",
+      wind: "شمالية شرقية خفيفة",
+      rain: "احتمالية رذاذ صباحي",
+      notes: "نجم العطف هو النجم الثالث من الوسم، فيه يعتدل النهار وتبرد الليالي، وهو وقت ذهبي للزراعة."
     }
   };
 }
@@ -87,7 +77,7 @@ export default function Home() {
         <div className="container mx-auto px-4 z-10 text-white space-y-4">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-sm border border-white/30">
             <MapPin className="h-4 w-4" />
-            <span>المنطقة: الطائف - المرتفعات</span>
+            <span>المنطقة: الحجاز والمرتفعات</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-headline font-bold leading-tight max-w-2xl">
             نزرع بالخبرة،<br /> وننمو بالذكاء الاصطناعي

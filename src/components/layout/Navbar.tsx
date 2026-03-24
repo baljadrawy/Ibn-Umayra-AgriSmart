@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Leaf, Calendar, Sprout, MessageSquare, LayoutDashboard, Menu, X } from 'lucide-react';
+import { Leaf, Calendar, Sprout, MessageSquare, LayoutDashboard, Menu, X, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/calendar', label: 'التقويم السنوي', icon: Calendar },
   { href: '/crops', label: 'دليل المحاصيل', icon: Sprout },
   { href: '/ask', label: 'المستشار الذكي', icon: MessageSquare },
+  { href: '/dashboard', label: 'لوحة التحكم', icon: Settings },
 ];
 
 export default function Navbar() {
@@ -42,8 +43,8 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
-          <Button size="sm" className="bg-primary hover:bg-primary/90">
-            سجل مزرعتك
+          <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
+            <Link href="/dashboard">إدارة المزرعة</Link>
           </Button>
         </div>
 
@@ -70,8 +71,8 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
-          <Button className="w-full bg-primary mt-2">
-            سجل مزرعتك
+          <Button className="w-full bg-primary mt-2" asChild>
+            <Link href="/dashboard" onClick={() => setIsOpen(false)}>إدارة المزرعة</Link>
           </Button>
         </div>
       )}
