@@ -5,8 +5,8 @@ import Navbar from '@/components/layout/Navbar';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'تقويم ابن عميرة الزراعي الذكي',
-  description: 'نظام زراعي ذكي يدمج الخبرة التراثية السعودية مع الذكاء الاصطناعي وبيانات الطقس الحية',
+  title: 'التقويم الزراعي المطور المبني على تقويم ابن عميرة',
+  description: 'نظام زراعي ذكي يدمج الخبرة التراثية السعودية مع الذكاء الاصطناعي وبيانات الطقس الحية - إطلاق تجريبي',
 };
 
 export default function RootLayout({
@@ -27,8 +27,8 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="py-8 text-center border-t bg-muted/50">
-          <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} تقويم ابن عميرة الزراعي الذكي. جميع الحقوق محفوظة.
+          <p className="text-muted-foreground text-sm font-medium">
+            © {new Date().getFullYear()} التقويم الزراعي المطور - إطلاق تجريبي. جميع الحقوق محفوظة.
           </p>
         </footer>
         <Toaster />

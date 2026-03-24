@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Leaf, Calendar, Sprout, MessageSquare, LayoutDashboard, Menu, X, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { href: '/', label: 'الرئيسية', icon: LayoutDashboard },
@@ -20,15 +21,19 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl">
+    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl">
       <div className="glass rounded-full px-6 h-16 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.05)] border border-white/40">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
+        <Link href="/" className="flex items-center gap-2 font-bold text-primary shrink-0">
           <Leaf className="h-6 w-6" />
-          <span className="hidden sm:inline">ابن عميرة</span>
+          <div className="flex flex-col">
+            <span className="text-sm sm:text-base leading-none">التقويم الزراعي المطور</span>
+            <span className="text-[10px] text-muted-foreground font-medium hidden sm:block">ابن عميرة</span>
+          </div>
+          <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-none text-[9px] px-1.5 py-0 rounded-sm">تجريبي</Badge>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-1 mx-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -46,7 +51,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-           <Button size="sm" variant="ghost" className="rounded-full h-10 w-10 p-0 hover:bg-black/5" asChild>
+           <Button size="sm" variant="ghost" className="rounded-full h-10 w-10 p-0 hover:bg-black/5" asChild title="الإعدادات">
               <Link href="/dashboard"><Settings className="h-5 w-5" /></Link>
            </Button>
            <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
