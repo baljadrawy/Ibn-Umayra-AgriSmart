@@ -15,7 +15,7 @@ interface WeatherCompareProps {
     temperature: string;
     notes: string;
   };
-  onLocationUpdate?: (city: string) => void;
+  onLocationUpdate?: (city: string, temp: number, zoneId: string) => void;
 }
 
 export default function WeatherCompare({ expectedClimate, onLocationUpdate }: WeatherCompareProps) {
@@ -41,6 +41,8 @@ export default function WeatherCompare({ expectedClimate, onLocationUpdate }: We
       const score = Math.max(0, 100 - (diff * 5)); 
       setMatchScore(Math.round(score));
       
+      const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(locationName)) || CLIMATE_ZONES_DATA[0];
+
       if (isAuto) {
         setSelectedCity(locationName);
         setIsAutoLocation(true);
@@ -54,7 +56,7 @@ export default function WeatherCompare({ expectedClimate, onLocationUpdate }: We
         localStorage.removeItem('user_lon');
       }
       
-      if (onLocationUpdate) onLocationUpdate(locationName);
+      if (onLocationUpdate) onLocationUpdate(locationName, currentTemp, zone.id);
     } catch (err) {
       console.error(err);
     } finally {
