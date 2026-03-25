@@ -4,89 +4,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, AlertTriangle, ThermometerSun, MapPin, LocateFixed, Loader2 } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, LocateFixed, Loader2 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-
-// قاعدة بيانات المدن وإحداثياتها التقريبية لضمان جلب الطقس آلياً لكل مدينة
-const CITIES_COORDINATES: Record<string, { lat: number, lon: number }> = {
-  // المرتفعات
-  'الطائف': { lat: 21.27, lon: 40.41 },
-  'أبها': { lat: 18.21, lon: 42.50 },
-  'الباحة': { lat: 20.01, lon: 41.46 },
-  'النماص': { lat: 19.11, lon: 42.13 },
-  'خميس مشيط': { lat: 18.30, lon: 42.73 },
-  // الوسطى
-  'الرياض': { lat: 24.71, lon: 46.67 },
-  'بريدة': { lat: 26.32, lon: 43.97 },
-  'عنيزة': { lat: 26.08, lon: 43.99 },
-  'حائل': { lat: 27.52, lon: 41.68 },
-  'الخرج': { lat: 24.15, lon: 47.31 },
-  // الشرقية
-  'الدمام': { lat: 26.43, lon: 50.10 },
-  'الخبر': { lat: 26.28, lon: 50.20 },
-  'الأحساء': { lat: 25.38, lon: 49.58 },
-  'حفر الباطن': { lat: 28.43, lon: 45.95 },
-  // الغربية
-  'جدة': { lat: 21.54, lon: 39.17 },
-  'مكة المكرمة': { lat: 21.42, lon: 39.82 },
-  'المدينة المنورة': { lat: 24.46, lon: 39.61 },
-  'ينبع': { lat: 24.08, lon: 38.06 },
-  'جازان': { lat: 16.88, lon: 42.55 },
-  // الشمالية
-  'تبوك': { lat: 28.38, lon: 36.56 },
-  'سكاكا': { lat: 29.96, lon: 40.20 },
-  'عرعر': { lat: 30.97, lon: 41.03 },
-  'القريات': { lat: 31.33, lon: 37.34 },
-};
-
-const CLIMATE_ZONES_DATA = [
-  {
-    id: 'highlands',
-    name: 'المرتفعات الجبلية',
-    offset: 0,
-    advice: 'أنت في النطاق المرجعي: تقويم ابن عميرة ينطبق على مزرعتك مباشرة وبدقة عالية.',
-    cities: ['الطائف', 'أبها', 'الباحة', 'النماص', 'خميس مشيط']
-  },
-  {
-    id: 'central',
-    name: 'الهضبة الوسطى',
-    offset: 7,
-    advice: 'المناخ قاري: يرجى تأخير مواعيد الزراعة بـ 7 أيام عن التقويم الأصلي.',
-    cities: ['الرياض', 'بريدة', 'عنيزة', 'حائل', 'الخرج']
-  },
-  {
-    id: 'east',
-    name: 'السهول الشرقية',
-    offset: -10,
-    advice: 'دفء مبكر: يمكنك تقديم مواعيد الزراعة بـ 10 أيام عن التقويم نظراً للدفء المبكر.',
-    cities: ['الدمام', 'الخبر', 'الأحساء', 'حفر الباطن']
-  },
-  {
-    id: 'west',
-    name: 'السهول الغربية',
-    offset: -7,
-    advice: 'مناخ الساحل: قدم مواعيد الزراعة بـ 7 أيام، المنطقة مناسبة للمحاصيل الاستوائية.',
-    cities: ['جدة', 'مكة المكرمة', 'المدينة المنورة', 'ينبع', 'جازان']
-  },
-  {
-    id: 'north',
-    name: 'المناطق الشمالية',
-    offset: 14,
-    advice: 'صقيع ممتد: يرجى تأخير مواعيد الزراعة بـ 14 يوماً لحماية الشتلات من البرد.',
-    cities: ['تبوك', 'سكاكا', 'عرعر', 'القريات']
-  }
-];
+import { CLIMATE_ZONES_DATA, CITIES_COORDINATES } from '@/lib/location-data';
 
 interface WeatherCompareProps {
   expectedClimate?: {
     temperature: string;
     notes: string;
   };
+  onLocationUpdate?: (city: string) => void;
 }
 
-export default function WeatherCompare({ expectedClimate }: WeatherCompareProps) {
+export default function WeatherCompare({ expectedClimate, onLocationUpdate }: WeatherCompareProps) {
   const [isSyncing, setIsSyncing] = useState(true);
   const [matchScore, setMatchScore] = useState<number>(0);
   const [liveTemp, setLiveTemp] = useState<number | null>(null);
@@ -112,15 +44,23 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
       if (isAuto) {
         setSelectedCity(locationName);
         setIsAutoLocation(true);
+        localStorage.setItem('user_city', 'auto');
+        localStorage.setItem('user_lat', lat.toString());
+        localStorage.setItem('user_lon', lon.toString());
       } else {
         setIsAutoLocation(false);
+        localStorage.setItem('user_city', locationName);
+        localStorage.removeItem('user_lat');
+        localStorage.removeItem('user_lon');
       }
+      
+      if (onLocationUpdate) onLocationUpdate(locationName);
     } catch (err) {
       console.error(err);
     } finally {
       setIsSyncing(false);
     }
-  }, [expectedClimate]);
+  }, [expectedClimate, onLocationUpdate]);
 
   const handleCityChange = (cityName: string) => {
     if (cityName === "auto") {
@@ -131,11 +71,9 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
     setSelectedCity(cityName);
     setIsAutoLocation(false);
     
-    // البحث عن الحزام
     const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(cityName)) || CLIMATE_ZONES_DATA[0];
     setCurrentZone(zone);
     
-    // جلب الإحداثيات والطقس آلياً للمدينة المختارة
     const coords = CITIES_COORDINATES[cityName] || CITIES_COORDINATES['الطائف'];
     fetchWeather(coords.lat, coords.lon, cityName, false);
   };
@@ -154,8 +92,17 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
   };
 
   useEffect(() => {
-    // جلب الطقس الابتدائي للطائف
-    handleCityChange("الطائف");
+    const savedCity = localStorage.getItem('user_city');
+    const savedLat = localStorage.getItem('user_lat');
+    const savedLon = localStorage.getItem('user_lon');
+
+    if (savedCity === 'auto' && savedLat && savedLon) {
+      fetchWeather(parseFloat(savedLat), parseFloat(savedLon), "موقعك الحالي", true);
+    } else if (savedCity && CITIES_COORDINATES[savedCity]) {
+      handleCityChange(savedCity);
+    } else {
+      handleCityChange("الطائف");
+    }
   }, []);
 
   return (
@@ -166,7 +113,7 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
             {isSyncing && <Loader2 className="h-3 w-3 animate-spin" />}
             مقارنة الطقس الميداني
           </CardTitle>
-          <p className="text-[10px] text-muted-foreground font-medium">مزامنة آليّة عند تغيير المدينة</p>
+          <p className="text-[10px] text-muted-foreground font-medium">مزامنة آليّة لمدينتك المحفوظة</p>
         </div>
       </CardHeader>
       

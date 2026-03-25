@@ -7,10 +7,13 @@ import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, ChevronRight, AlertCircle, MapPin, Info, Navigation } from 'lucide-react';
+import { Sparkles, ChevronRight, AlertCircle, Info, Navigation, LocateFixed, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CLIMATE_ZONES_DATA } from '@/lib/location-data';
 
 // التقويم السنوي الكامل 2026 المستخرج من صورة تقويم ابن عميرة
 const CALENDAR_2026 = [
@@ -82,11 +85,39 @@ function getCurrentNawaaInfo() {
 
 export default function Home() {
   const [currentNawaa, setCurrentNawaa] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingCity, setOnboardingCity] = useState("");
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-farm');
 
   useEffect(() => {
     setCurrentNawaa(getCurrentNawaaInfo());
+    
+    // فحص إذا كان المستخدم دخل لأول مرة
+    const savedCity = localStorage.getItem('user_city');
+    if (!savedCity) {
+      setTimeout(() => setShowOnboarding(true), 1500);
+    }
   }, []);
+
+  const handleOnboardingManual = () => {
+    if (onboardingCity) {
+      localStorage.setItem('user_city', onboardingCity);
+      setShowOnboarding(false);
+      window.location.reload(); // إعادة التحميل لتطبيق الاختيار
+    }
+  };
+
+  const handleOnboardingAuto = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        localStorage.setItem('user_city', 'auto');
+        localStorage.setItem('user_lat', pos.coords.latitude.toString());
+        localStorage.setItem('user_lon', pos.coords.longitude.toString());
+        setShowOnboarding(false);
+        window.location.reload();
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -161,6 +192,73 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* حوار الترحيب وتهيئة الموقع */}
+      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+        <DialogContent className="sm:max-w-[425px] text-right rounded-3xl" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3 justify-end">
+              أهلاً بك في التقويم المطور
+              <Sparkles className="h-6 w-6 text-primary" />
+            </DialogTitle>
+            <DialogDescription className="text-right pt-2 leading-relaxed">
+              لتقديم أدق النصائح الزراعية وتعديل مواعيد التقويم حسب منطقتك، يرجى تحديد موقعك الحالي.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-6">
+            <div className="space-y-3">
+              <p className="text-xs font-bold text-muted-foreground pr-1 uppercase">الخيار الأول: تحديد آلي</p>
+              <Button 
+                onClick={handleOnboardingAuto} 
+                variant="outline" 
+                className="w-full h-14 rounded-2xl border-primary/20 hover:bg-primary/5 gap-3 text-lg"
+              >
+                <LocateFixed className="h-5 w-5 text-primary" />
+                تحديد موقعي آلياً
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground font-bold">أو</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs font-bold text-muted-foreground pr-1 uppercase">الخيار الثاني: اختيار يدوي</p>
+              <Select onValueChange={setOnboardingCity} value={onboardingCity}>
+                <SelectTrigger className="h-14 rounded-2xl border-primary/20 text-right flex-row-reverse">
+                  <SelectValue placeholder="اختر مدينتك أو محافظتك" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {CLIMATE_ZONES_DATA.map((zone) => (
+                    <SelectGroup key={zone.id}>
+                      <SelectLabel className="text-primary font-bold pr-8 text-right">{zone.name}</SelectLabel>
+                      {zone.cities.map((city) => (
+                        <SelectItem key={city} value={city} className="pr-8 text-right flex-row-reverse">{city}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              onClick={handleOnboardingManual} 
+              disabled={!onboardingCity}
+              className="w-full h-12 bg-primary rounded-xl font-bold text-lg"
+            >
+              تأكيد الاختيار وحفظ الموقع
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
