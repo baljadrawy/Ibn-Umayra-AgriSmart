@@ -4,47 +4,78 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, AlertTriangle, RefreshCw, ThermometerSun, MapPin, Info, Navigation, LocateFixed } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { CheckCircle2, AlertTriangle, ThermometerSun, MapPin, LocateFixed, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-// تعريف الأحزمة المناخية ومدنها وفوارق التوقيت عن الطائف
+// قاعدة بيانات المدن وإحداثياتها التقريبية لضمان جلب الطقس آلياً لكل مدينة
+const CITIES_COORDINATES: Record<string, { lat: number, lon: number }> = {
+  // المرتفعات
+  'الطائف': { lat: 21.27, lon: 40.41 },
+  'أبها': { lat: 18.21, lon: 42.50 },
+  'الباحة': { lat: 20.01, lon: 41.46 },
+  'النماص': { lat: 19.11, lon: 42.13 },
+  'خميس مشيط': { lat: 18.30, lon: 42.73 },
+  // الوسطى
+  'الرياض': { lat: 24.71, lon: 46.67 },
+  'بريدة': { lat: 26.32, lon: 43.97 },
+  'عنيزة': { lat: 26.08, lon: 43.99 },
+  'حائل': { lat: 27.52, lon: 41.68 },
+  'الخرج': { lat: 24.15, lon: 47.31 },
+  // الشرقية
+  'الدمام': { lat: 26.43, lon: 50.10 },
+  'الخبر': { lat: 26.28, lon: 50.20 },
+  'الأحساء': { lat: 25.38, lon: 49.58 },
+  'حفر الباطن': { lat: 28.43, lon: 45.95 },
+  // الغربية
+  'جدة': { lat: 21.54, lon: 39.17 },
+  'مكة المكرمة': { lat: 21.42, lon: 39.82 },
+  'المدينة المنورة': { lat: 24.46, lon: 39.61 },
+  'ينبع': { lat: 24.08, lon: 38.06 },
+  'جازان': { lat: 16.88, lon: 42.55 },
+  // الشمالية
+  'تبوك': { lat: 28.38, lon: 36.56 },
+  'سكاكا': { lat: 29.96, lon: 40.20 },
+  'عرعر': { lat: 30.97, lon: 41.03 },
+  'القريات': { lat: 31.33, lon: 37.34 },
+};
+
 const CLIMATE_ZONES_DATA = [
   {
     id: 'highlands',
     name: 'المرتفعات الجبلية',
     offset: 0,
     advice: 'أنت في النطاق المرجعي: تقويم ابن عميرة ينطبق على مزرعتك مباشرة وبدقة عالية.',
-    cities: ['الطائف', 'أبها', 'الباحة', 'النماص', 'بلجرشي', 'خميس مشيط', 'ميسان', 'الشفا', 'الهدا']
+    cities: ['الطائف', 'أبها', 'الباحة', 'النماص', 'خميس مشيط']
   },
   {
     id: 'central',
     name: 'الهضبة الوسطى',
     offset: 7,
-    advice: 'المناخ قاري: يرجى تأخير مواعيد الزراعة بـ 7 أيام عن التقويم الأصلي بسبب تأخر انكسار البرد.',
-    cities: ['الرياض', 'بريدة', 'عنيزة', 'حائل', 'الخرج', 'المجمعة', 'الزلفي', 'شقراء', 'الدوادمي']
+    advice: 'المناخ قاري: يرجى تأخير مواعيد الزراعة بـ 7 أيام عن التقويم الأصلي.',
+    cities: ['الرياض', 'بريدة', 'عنيزة', 'حائل', 'الخرج']
   },
   {
     id: 'east',
     name: 'السهول الشرقية',
     offset: -10,
-    advice: 'دفء مبكر: يمكنك تقديم مواعيد الزراعة بـ 10 أيام عن التقويم نظراً للدفء والرطوبة المبكرة.',
-    cities: ['الدمام', 'الخبر', 'الأحساء', 'الجبيل', 'حفر الباطن', 'القطيف', 'الظهران', 'الخفجي']
+    advice: 'دفء مبكر: يمكنك تقديم مواعيد الزراعة بـ 10 أيام عن التقويم نظراً للدفء المبكر.',
+    cities: ['الدمام', 'الخبر', 'الأحساء', 'حفر الباطن']
   },
   {
     id: 'west',
     name: 'السهول الغربية',
     offset: -7,
-    advice: 'مناخ تهامة والساحل: قدم مواعيد الزراعة بـ 7 أيام، والمنطقة مناسبة للمحاصيل الاستوائية.',
-    cities: ['جدة', 'مكة المكرمة', 'المدينة المنورة', 'ينبع', 'جازان', 'رابغ', 'القنفذة', 'الليث']
+    advice: 'مناخ الساحل: قدم مواعيد الزراعة بـ 7 أيام، المنطقة مناسبة للمحاصيل الاستوائية.',
+    cities: ['جدة', 'مكة المكرمة', 'المدينة المنورة', 'ينبع', 'جازان']
   },
   {
     id: 'north',
     name: 'المناطق الشمالية',
     offset: 14,
-    advice: 'صقيع ممتد: يرجى تأخير مواعيد الزراعة بـ 14 يوماً عن التقويم الأصلي لحماية الشتلات من موجات البرد المتأخرة.',
-    cities: ['تبوك', 'سكاكا', 'عرعر', 'القريات', 'طريف', 'دومة الجندل', 'حقل']
+    advice: 'صقيع ممتد: يرجى تأخير مواعيد الزراعة بـ 14 يوماً لحماية الشتلات من البرد.',
+    cities: ['تبوك', 'سكاكا', 'عرعر', 'القريات']
   }
 ];
 
@@ -63,12 +94,7 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
   const [currentZone, setCurrentZone] = useState(CLIMATE_ZONES_DATA[0]);
   const [isAutoLocation, setIsAutoLocation] = useState(false);
 
-  // البحث عن الحزام المناخي بناءً على اسم المدينة
-  const findZoneByCity = (cityName: string) => {
-    return CLIMATE_ZONES_DATA.find(zone => zone.cities.includes(cityName)) || CLIMATE_ZONES_DATA[0];
-  };
-
-  const fetchWeather = async (lat: number, lon: number, locationName: string, isAuto: boolean) => {
+  const fetchWeather = useCallback(async (lat: number, lon: number, locationName: string, isAuto: boolean) => {
     setIsSyncing(true);
     try {
       const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
@@ -86,28 +112,31 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
       if (isAuto) {
         setSelectedCity(locationName);
         setIsAutoLocation(true);
-        // في حال التحديد الآلي، نحاول تخمين الحزام (تبسيطاً نستخدم أقرب حزام للموقع)
-        // هنا سنعتمد على أن الموقع آلي
       } else {
         setIsAutoLocation(false);
       }
-
     } catch (err) {
       console.error(err);
     } finally {
       setIsSyncing(false);
     }
-  };
+  }, [expectedClimate]);
 
-  const handleManualCityChange = (cityName: string) => {
+  const handleCityChange = (cityName: string) => {
+    if (cityName === "auto") {
+      handleAutoDetect();
+      return;
+    }
+
     setSelectedCity(cityName);
     setIsAutoLocation(false);
-    const zone = findZoneByCity(cityName);
+    
+    // البحث عن الحزام
+    const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(cityName)) || CLIMATE_ZONES_DATA[0];
     setCurrentZone(zone);
     
-    // إحداثيات تقريبية للمدن (يمكن تطويرها بقاعدة بيانات كاملة)
-    // هنا نستخدم إحداثيات المرجع لكل حزام للتبسيط
-    const coords = { lat: 21.27, lon: 40.41 }; // افتراضي الطائف
+    // جلب الإحداثيات والطقس آلياً للمدينة المختارة
+    const coords = CITIES_COORDINATES[cityName] || CITIES_COORDINATES['الطائف'];
     fetchWeather(coords.lat, coords.lon, cityName, false);
   };
 
@@ -117,8 +146,7 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
       navigator.geolocation.getCurrentPosition(
         (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "موقعك الحالي", true),
         () => {
-          handleManualCityChange("الطائف");
-          alert("تعذر تحديد موقعك آلياً، تم العودة لمرجع الطائف.");
+          handleCityChange("الطائف");
         },
         { timeout: 8000 }
       );
@@ -126,62 +154,55 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
   };
 
   useEffect(() => {
-    // البدء بمدينة الطائف افتراضياً
-    handleManualCityChange("الطائف");
-  }, [expectedClimate]);
+    // جلب الطقس الابتدائي للطائف
+    handleCityChange("الطائف");
+  }, []);
 
   return (
     <Card className="h-full border-none shadow-md bg-white overflow-hidden flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex flex-col gap-1">
-          <CardTitle className="text-sm font-bold">مقارنة الطقس الميداني</CardTitle>
-          <p className="text-[10px] text-muted-foreground font-medium">مزامنة حية مع المناخ المحلي</p>
+        <div className="flex flex-col gap-1 text-right w-full">
+          <CardTitle className="text-sm font-bold flex items-center justify-end gap-2 text-primary">
+            {isSyncing && <Loader2 className="h-3 w-3 animate-spin" />}
+            مقارنة الطقس الميداني
+          </CardTitle>
+          <p className="text-[10px] text-muted-foreground font-medium">مزامنة آليّة عند تغيير المدينة</p>
         </div>
-        <Badge variant="secondary" className={cn(
-          "rounded-full text-[9px] px-2",
-          isSyncing ? "animate-pulse" : "bg-primary/10 text-primary"
-        )}>
-          {isSyncing ? "جاري التحديث" : "بيانات حية"}
-        </Badge>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-6">
-        {/* اختيار الموقع */}
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Select value={isAutoLocation ? "auto" : selectedCity} onValueChange={handleManualCityChange}>
-                <SelectTrigger className="h-10 rounded-xl border-primary/20 bg-muted/30 focus:ring-primary">
-                  <SelectValue placeholder="اختر مدينتك" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  <SelectItem value="auto" disabled className="hidden">موقعك الحالي</SelectItem>
-                  {CLIMATE_ZONES_DATA.map((zone) => (
-                    <SelectGroup key={zone.id}>
-                      <SelectLabel className="text-primary font-bold pr-8">{zone.name}</SelectLabel>
-                      {zone.cities.map((city) => (
-                        <SelectItem key={city} value={city} className="pr-8">{city}</SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className={cn("h-10 w-10 rounded-xl transition-colors", isAutoLocation && "bg-primary text-white border-primary")}
-              onClick={handleAutoDetect}
-              title="تحديد الموقع آلياً"
-            >
-              <LocateFixed className="h-4 w-4" />
-            </Button>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Select value={isAutoLocation ? "auto" : selectedCity} onValueChange={handleCityChange}>
+              <SelectTrigger className="h-10 rounded-xl border-primary/20 bg-muted/30 focus:ring-primary text-right flex-row-reverse">
+                <SelectValue placeholder="اختر مدينتك" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                {isAutoLocation && <SelectItem value="auto">موقعك الحالي</SelectItem>}
+                {CLIMATE_ZONES_DATA.map((zone) => (
+                  <SelectGroup key={zone.id}>
+                    <SelectLabel className="text-primary font-bold pr-8 text-right">{zone.name}</SelectLabel>
+                    {zone.cities.map((city) => (
+                      <SelectItem key={city} value={city} className="pr-8 text-right flex-row-reverse">{city}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className={cn("h-10 w-10 rounded-xl transition-all", isAutoLocation && "bg-primary text-white border-primary")}
+            onClick={handleAutoDetect}
+            title="تحديد الموقع آلياً"
+          >
+            <LocateFixed className="h-4 w-4" />
+          </Button>
         </div>
 
-        {/* مؤشر التوافق والحرارة */}
         <div className="flex items-center justify-center py-2">
-          <div className="relative flex items-center justify-center w-28 h-28 rounded-full border-4 border-primary/5 bg-primary/5 shadow-inner">
+          <div className="relative flex items-center justify-center w-28 h-28 rounded-full border-4 border-primary/5 bg-primary/5 shadow-inner transition-transform hover:scale-105">
             <div className="text-center">
               <span className="text-3xl font-bold text-primary tracking-tighter">{isSyncing ? '--' : matchScore}%</span>
               <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-widest mt-1">نسبة التوافق</p>
@@ -190,17 +211,16 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-2xl bg-muted/40 border border-black/5 text-center">
-            <p className="text-[8px] text-muted-foreground font-bold uppercase mb-1">الحرارة الحالية</p>
+          <div className="p-3 rounded-2xl bg-muted/40 border border-black/5 text-center transition-colors hover:bg-muted/60">
+            <p className="text-[8px] text-muted-foreground font-bold uppercase mb-1">الحرارة في {selectedCity}</p>
             <span className="text-xl font-bold text-foreground">{isSyncing ? '--' : liveTemp}°م</span>
           </div>
-          <div className="p-3 rounded-2xl bg-muted/40 border border-black/5 text-center">
-            <p className="text-[8px] text-muted-foreground font-bold uppercase mb-1">المتوقع (الطائف)</p>
+          <div className="p-3 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+            <p className="text-[8px] text-primary font-bold uppercase mb-1">المتوقع في التقويم</p>
             <p className="text-xl font-bold text-primary">{expectedClimate?.temperature.split(' ')[0] || '21°م'}</p>
           </div>
         </div>
 
-        {/* بيان التعديل */}
         <div className={cn(
           "p-4 rounded-2xl flex items-start gap-3 text-right transition-all",
           currentZone.offset !== 0 ? "bg-orange-50 border border-orange-100" : "bg-primary/5 border border-primary/10"
@@ -210,10 +230,10 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
             <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 shrink-0" />
           }
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <p className="font-bold text-xs">تحليل المنطقة: {currentZone.name}</p>
+            <div className="flex items-center justify-end gap-2">
+              <p className="font-bold text-xs">تحليل {currentZone.name}</p>
               {currentZone.offset !== 0 && (
-                <Badge variant="outline" className="text-[9px] border-orange-200 text-orange-600 py-0 leading-none h-4">
+                <Badge variant="outline" className="text-[9px] border-orange-200 text-orange-600 py-0 h-4">
                   تعديل: {currentZone.offset > 0 ? `+${currentZone.offset}` : currentZone.offset} يوم
                 </Badge>
               )}
@@ -227,4 +247,3 @@ export default function WeatherCompare({ expectedClimate }: WeatherCompareProps)
     </Card>
   );
 }
-
