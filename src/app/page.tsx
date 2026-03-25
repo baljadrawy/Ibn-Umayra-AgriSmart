@@ -101,7 +101,7 @@ export default function Home() {
         <div className="container mx-auto text-center space-y-6">
           <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 w-fit mx-auto">
             <Navigation className="h-3 w-3" />
-            النطاق المرجعي: الطائف والحجاز
+            النظام يدعم التحديد الآلي واليدوي لكافة مناطق المملكة
           </Badge>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold apple-text-gradient leading-[1.1] tracking-tight">
             التقويم الزراعي المطور <br />
@@ -137,7 +137,7 @@ export default function Home() {
               <Info className="h-4 w-4 text-accent" />
               <p className="text-xs font-bold uppercase tracking-widest opacity-80">تنبيه ذكي</p>
             </div>
-            <p className="text-sm md:text-base font-medium max-w-md">يتم الآن تعديل التوصيات آلياً بناءً على موقعك الحالي لضمان الدقة.</p>
+            <p className="text-sm md:text-base font-medium max-w-md">اختر مدينتك من قائمة "مقارنة الطقس" ليقوم النظام بحساب التعديل الزمني المناسب لك.</p>
           </div>
         </div>
       </section>
