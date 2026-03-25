@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import NawaaCard from '@/components/dashboard/NawaaCard';
 import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CLIMATE_ZONES_DATA } from '@/lib/location-data';
+import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS } from '@/lib/location-data';
 
 // التقويم السنوي الكامل 2026 المستخرج من صورة تقويم ابن عميرة
 const CALENDAR_2026 = [
@@ -49,16 +49,18 @@ const CALENDAR_2026 = [
   { id: 30, name: "المرزم", cycle: "الأنث", start: "2026-12-20", end: "2026-12-31", note: "الجو أكثر برودة، أطول ليل وأقصر نهار." },
 ];
 
-function getCurrentNawaaInfo() {
+function getAdjustedNawaaInfo(offsetDays: number = 0) {
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  // تطبيق الإزاحة (Offset) لحساب النوء "الفعلي" للمنطقة
+  const effectiveDate = new Date(now.getTime() - (offsetDays * 24 * 60 * 60 * 1000));
+  const todayStr = effectiveDate.toISOString().split('T')[0];
   const current = CALENDAR_2026.find(n => todayStr >= n.start && todayStr <= n.end);
 
   if (current) {
     const start = new Date(current.start);
     const end = new Date(current.end);
     const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const elapsed = Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const elapsed = Math.round((effectiveDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     
     const locale = 'ar-EG'; 
     const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
@@ -87,12 +89,41 @@ export default function Home() {
   const [currentNawaa, setCurrentNawaa] = useState<any>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingCity, setOnboardingCity] = useState("");
+  const [recommendations, setRecommendations] = useState<{planting: string[], activities: string[], warnings: string[]}>({
+    planting: [],
+    activities: [],
+    warnings: []
+  });
+
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-farm');
 
+  const updateDynamicData = useCallback((cityName: string, liveTemp: number, zoneId: string) => {
+    const zone = CLIMATE_ZONES_DATA.find(z => z.id === zoneId) || CLIMATE_ZONES_DATA[0];
+    const nawaa = getAdjustedNawaaInfo(zone.offset);
+    setCurrentNawaa(nawaa);
+
+    if (nawaa) {
+      const baseRecs = NAWAA_RECOMMENDATIONS[nawaa.name] || { planting: [], activities: [], warnings: [] };
+      
+      // تعديل التوصيات بناءً على الحرارة الحقيقية (Real-time Correction)
+      const adjustedWarnings = [...baseRecs.warnings];
+      const expectedTemp = 21; // متوسط افتراضي للنوء
+      if (liveTemp > expectedTemp + 5) {
+        adjustedWarnings.push("الحرارة أعلى من المعتاد: كثّف الري المسائي");
+      } else if (liveTemp < expectedTemp - 5) {
+        adjustedWarnings.push("برد مفاجئ: احمِ الشتلات الحساسة من التيارات الباردة");
+      }
+
+      setRecommendations({
+        ...baseRecs,
+        warnings: adjustedWarnings
+      });
+    }
+  }, []);
+
   useEffect(() => {
-    setCurrentNawaa(getCurrentNawaaInfo());
+    setCurrentNawaa(getAdjustedNawaaInfo());
     
-    // فحص إذا كان المستخدم دخل لأول مرة
     const savedCity = localStorage.getItem('user_city');
     if (!savedCity) {
       setTimeout(() => setShowOnboarding(true), 1500);
@@ -103,7 +134,7 @@ export default function Home() {
     if (onboardingCity) {
       localStorage.setItem('user_city', onboardingCity);
       setShowOnboarding(false);
-      window.location.reload(); // إعادة التحميل لتطبيق الاختيار
+      window.location.reload();
     }
   };
 
@@ -180,20 +211,18 @@ export default function Home() {
           </div>
           <div className="md:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
              <div className="flex">
-                <WeatherCompare expectedClimate={currentNawaa?.climate} />
+                <WeatherCompare 
+                  expectedClimate={currentNawaa?.climate} 
+                  onLocationUpdate={updateDynamicData}
+                />
              </div>
              <div className="flex">
-                <RecommendationList recommendations={{
-                  planting: ["البامية", "الكوسا", "الفلفل", "الباذنجان"],
-                  activities: ["بدء ري الأشجار", "تسميد أحواض الخضار"],
-                  warnings: ["مراقبة نشاط الحشرات", "تجنب التعطيش المفاجئ"]
-                }} />
+                <RecommendationList recommendations={recommendations} />
              </div>
           </div>
         </div>
       </section>
 
-      {/* حوار الترحيب وتهيئة الموقع */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
         <DialogContent className="sm:max-w-[425px] text-right rounded-3xl" dir="rtl">
           <DialogHeader>
