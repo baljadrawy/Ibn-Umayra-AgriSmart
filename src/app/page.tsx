@@ -7,7 +7,7 @@ import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, ChevronRight, AlertCircle, MapPin } from 'lucide-react';
+import { Sparkles, ChevronRight, AlertCircle, MapPin, Info, Navigation } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -97,11 +97,11 @@ export default function Home() {
         </div>
       </div>
 
-      <section className="relative pt-24 pb-16 px-4">
+      <section className="relative pt-24 pb-12 px-4">
         <div className="container mx-auto text-center space-y-6">
           <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-2 w-fit mx-auto">
-            <MapPin className="h-3 w-3" />
-            توصيات مرجع الطائف والحجاز
+            <Navigation className="h-3 w-3" />
+            النطاق المرجعي: الطائف والحجاز
           </Badge>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold apple-text-gradient leading-[1.1] tracking-tight">
             التقويم الزراعي المطور <br />
@@ -110,8 +110,8 @@ export default function Home() {
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-medium">
             بوابة ذكية تدمج الخبرة التاريخية للمملكة مع أحدث تقنيات الرصد والذكاء الاصطناعي.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 pt-6">
-            <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-semibold" asChild>
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
+            <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-semibold shadow-lg" asChild>
               <Link href="/ask">استشر الذكاء الزراعي <Sparkles className="ml-2 h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="ghost" className="rounded-full px-8 font-semibold group" asChild>
@@ -121,8 +121,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 mb-20">
-        <div className="relative h-[350px] md:h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border border-black/5">
+      <section className="container mx-auto px-4 mb-16">
+        <div className="relative h-[250px] md:h-[400px] rounded-[3rem] overflow-hidden shadow-2xl border border-black/5">
           <Image
             src={heroImage?.imageUrl || ""}
             alt="Saudi Farm"
@@ -132,6 +132,13 @@ export default function Home() {
             data-ai-hint="saudi farm landscape"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+          <div className="absolute bottom-6 right-8 text-white">
+            <div className="flex items-center gap-2 mb-1">
+              <Info className="h-4 w-4 text-accent" />
+              <p className="text-xs font-bold uppercase tracking-widest opacity-80">تنبيه ذكي</p>
+            </div>
+            <p className="text-sm md:text-base font-medium max-w-md">يتم الآن تعديل التوصيات آلياً بناءً على موقعك الحالي لضمان الدقة.</p>
+          </div>
         </div>
       </section>
 
