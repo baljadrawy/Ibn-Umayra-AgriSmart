@@ -1,0 +1,47 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-farm",
+      "description": "Green lush farm in Saudi Arabia with palm trees",
+      "imageUrl": "https://picsum.photos/seed/agri-hero/1200/600",
+      "imageHint": "saudi farm"
+    },
+    {
+      "id": "crop-tomato",
+      "description": "Healthy organic red tomatoes on vine",
+      "imageUrl": "https://picsum.photos/seed/tomato-healthy/600/400",
+      "imageHint": "fresh tomatoes"
+    },
+    {
+      "id": "crop-pepper",
+      "description": "Fresh and vibrant bell peppers",
+      "imageUrl": "https://picsum.photos/seed/pepper-vibrant/600/400",
+      "imageHint": "bell pepper"
+    },
+    {
+      "id": "crop-parsley",
+      "description": "Fresh organic parsley leaves",
+      "imageUrl": "https://picsum.photos/seed/parsley-organic/600/400",
+      "imageHint": "fresh parsley"
+    },
+    {
+      "id": "crop-alfalfa",
+      "description": "Healthy green alfalfa field",
+      "imageUrl": "https://picsum.photos/seed/alfalfa-green/600/400",
+      "imageHint": "alfalfa field"
+    },
+    {
+      "id": "crop-palm",
+      "description": "Strong date palm tree in Saudi Arabia",
+      "imageUrl": "https://picsum.photos/seed/palm-saudi/600/400",
+      "imageHint": "date palm"
+    },
+    {
+      "id": "crop-grapes",
+      "description": "Juicy grapes in a healthy vineyard",
+      "imageUrl": "https://picsum.photos/seed/grapes-juicy/600/400",
+      "imageHint": "fresh grapes"
+    }
+  ]
+}
