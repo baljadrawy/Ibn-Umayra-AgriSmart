@@ -10,9 +10,9 @@ import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { href: '/', label: 'الرئيسية', icon: LayoutDashboard },
-  { href: '/calendar', label: 'التقويم', icon: Calendar },
-  { href: '/crops', label: 'المحاصيل', icon: Sprout },
-  { href: '/ask', label: 'المستشار', icon: MessageSquare },
+  { href: '/calendar', label: 'التقويم السنوي', icon: Calendar },
+  { href: '/crops', label: 'دليل المحاصيل', icon: Sprout },
+  { href: '/ask', label: 'المستشار الذكي', icon: MessageSquare },
 ];
 
 export default function Navbar() {
@@ -21,14 +21,14 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl">
-      <div className="glass rounded-full px-6 h-16 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.05)] border border-white/40">
+      <div className="glass rounded-full px-6 h-16 flex items-center justify-between shadow-lg border border-white/40">
         <Link href="/" className="flex items-center gap-2 font-bold text-primary shrink-0">
           <Leaf className="h-6 w-6" />
           <div className="flex flex-col">
             <span className="text-sm sm:text-base leading-none">التقويم الزراعي المطور</span>
-            <span className="text-[10px] text-muted-foreground font-medium hidden sm:block">ابن عميرة</span>
+            <span className="text-[9px] text-muted-foreground font-medium hidden sm:block">بناءً على تقويم ابن عميرة</span>
           </div>
-          <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-none text-[9px] px-1.5 py-0 rounded-sm">تجريبي</Badge>
+          <Badge variant="secondary" className="bg-accent/20 text-primary border-none text-[8px] px-1.5 py-0 rounded-sm">تجريبي</Badge>
         </Link>
 
         {/* Desktop Nav */}
@@ -38,10 +38,10 @@ export default function Navbar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300",
+                "px-4 py-2 rounded-full text-xs font-bold transition-all duration-300",
                 pathname === item.href 
-                  ? "bg-black text-white" 
-                  : "text-muted-foreground hover:bg-black/5 hover:text-black"
+                  ? "bg-primary text-white" 
+                  : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
               )}
             >
               {item.label}
@@ -65,8 +65,8 @@ export default function Navbar() {
               href={item.href}
               onClick={() => setIsOpen(false)}
               className={cn(
-                "flex items-center gap-4 text-lg font-bold p-4 rounded-2xl",
-                pathname === item.href ? "bg-black text-white" : "hover:bg-black/5"
+                "flex items-center gap-4 text-sm font-bold p-4 rounded-2xl",
+                pathname === item.href ? "bg-primary text-white" : "hover:bg-primary/10"
               )}
             >
               <item.icon className="h-5 w-5" />

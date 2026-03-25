@@ -5,26 +5,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%; /* Ultra light gray like Apple */
+    --background: 142 30% 97%; /* Very light desaturated green */
     --foreground: 0 0% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
-    --primary: 142 70% 35%; /* Sophisticated Forest Green */
+    --primary: 142 50% 40%; /* Grounded natural green #339944 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 92%;
-    --secondary-foreground: 0 0% 20%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 142 70% 35%;
-    --accent-foreground: 0 0% 100%;
+    --secondary: 142 20% 90%;
+    --secondary-foreground: 142 50% 20%;
+    --muted: 142 10% 94%;
+    --muted-foreground: 142 10% 40%;
+    --accent: 71 80% 65%; /* Vibrant yellow-green #D5ED5E */
+    --accent-foreground: 142 50% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 142 70% 35%;
-    --radius: 1.25rem; /* Larger Apple-style radius */
+    --border: 142 20% 85%;
+    --input: 142 20% 85%;
+    --ring: 142 50% 40%;
+    --radius: 1.25rem;
   }
 }
 
@@ -38,7 +38,6 @@
   }
 }
 
-/* Apple-style Blur Glassmorphism */
 .glass {
   @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
 }
