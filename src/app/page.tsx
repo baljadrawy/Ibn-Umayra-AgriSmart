@@ -13,41 +13,7 @@ import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS } from '@/lib/location-data';
-
-// التقويم السنوي الكامل 2026 المستخرج من صورة تقويم ابن عميرة
-const CALENDAR_2026 = [
-  { id: 1, name: "الذراع", cycle: "الأسدية", start: "2026-01-02", end: "2026-01-12", note: "موعد البرد القارس، الرياح غربية وقد تتحول لشرقية سريعة باردة." },
-  { id: 2, name: "النثرة", cycle: "الأسدية", start: "2026-01-13", end: "2026-01-25", note: "درجة الحرارة تصل لأقل مستوى لها طوال العام، رياح شرقية رطبة باردة." },
-  { id: 3, name: "الطرف", cycle: "الأسدية", start: "2026-01-26", end: "2026-02-05", note: "درجة الحرارة تميل للاعتدال ليلاً، رياح غربية شديدة البرودة وسريعة." },
-  { id: 4, name: "الجبهة", cycle: "الدبور", start: "2026-02-06", end: "2026-02-19", note: "تحسن في درجات الحرارة مع بعض التقلبات، الرياح غالباً غربية إلى جنوبية غربية." },
-  { id: 5, name: "الزبرة", cycle: "الدبور", start: "2026-02-20", end: "2026-03-04", note: "الجو متقلب من اعتدال إلى برد قارس، الرياح غربية نشطة منذ الظهر." },
-  { id: 6, name: "العطف", cycle: "الدبور", start: "2026-03-05", end: "2026-03-16", note: "الجو يميل للاعتدال مع برودة ليلاً، رياح غالباً غربية إلى جنوبية غربية." },
-  { id: 7, name: "السماك", cycle: "الكنة", start: "2026-03-17", end: "2026-03-28", note: "الجو معتدل، موسم نزول الأمطار إذا لم تهب الرياح الغربية السريعة، أفضل أوقات الإزهار." },
-  { id: 8, name: "السميك", cycle: "الكنة", start: "2026-03-29", end: "2026-04-09", note: "الجو معتدل جميل جداً إذا لم تهب الرياح الغربية الشديدة." },
-  { id: 9, name: "العقرب", cycle: "الكنة", start: "2026-04-10", end: "2026-04-21", note: "الجو معتدل وقد يتخلله برد قارس، الرياح هادئة متقلبة." },
-  { id: 10, name: "العقيرب", cycle: "الكنة", start: "2026-04-22", end: "2026-05-03", note: "الجو معتدل يميل للدفء، الرياح متقلبة من شرقية إلى غربية." },
-  { id: 11, name: "الكف", cycle: "الكنة", start: "2026-05-04", end: "2026-05-15", note: "الجو دافئ يميل للحرارة الملحوظة، الرياح غالباً شرقية إلى جنوبية غربية." },
-  { id: 12, name: "الثريا", cycle: "الغفر", start: "2026-05-16", end: "2026-05-27", note: "الجو دافئ يميل للحرارة كثيراً، الرياح غالباً من شرقية إلى غربية." },
-  { id: 13, name: "المجيدح", cycle: "الغفر", start: "2026-05-28", end: "2026-06-08", note: "الجو شديد الحرارة، الأمطار نادرة إلى حد ما." },
-  { id: 14, name: "الجوزاء", cycle: "الغفر", start: "2026-06-09", end: "2026-06-20", note: "الجو حار شديد وجاف، الأمطار نادرة وموضعية." },
-  { id: 15, name: "المرزم", cycle: "الغفر", start: "2026-06-21", end: "2026-07-02", note: "الجو شديد الحرارة والسموم، الرياح غالباً غربية." },
-  { id: 16, name: "الذراع", cycle: "الخضر", start: "2026-07-03", end: "2026-07-14", note: "الجو شديد الحرارة، بداية نزول فواكه الطائف." },
-  { id: 17, name: "النثرة", cycle: "الخضر", start: "2026-07-15", end: "2026-07-26", note: "الجو صحو شديد الحرارة جاف، الرياح غالباً شرقية." },
-  { id: 18, name: "الطرف", cycle: "الخضر", start: "2026-08-07", end: "2026-08-07", note: "درجة الحرارة تبدأ في الانخفاض." },
-  { id: 19, name: "الجبهة", cycle: "الخضر", start: "2026-08-08", end: "2026-08-21", note: "الجو أقل حرارة من سابقه." },
-  { id: 20, name: "الزبرة", cycle: "الخضر", start: "2026-08-22", end: "2026-09-02", note: "الجو صاف يميل إلى الصفاء." },
-  { id: 21, name: "العطف", cycle: "الخضر", start: "2026-09-03", end: "2026-09-14", note: "الجو يميل للاعتدال ولكنه غير لطيف." },
-  { id: 22, name: "السماك", cycle: "الأنث", start: "2026-09-15", end: "2026-09-26", note: "الجو معتدل جاف متميز." },
-  { id: 23, name: "السميك", cycle: "الأنث", start: "2026-09-27", end: "2026-10-08", note: "الجو معتدل جاف يميل للبرد ليلاً." },
-  { id: 24, name: "العقرب", cycle: "الأنث", start: "2026-10-09", end: "2026-10-20", note: "الجو جاف معتدل الحرارة." },
-  { id: 25, name: "العقيرب", cycle: "الأنث", start: "2026-10-21", end: "2026-11-01", note: "الجو بارد يميل للبرودة." },
-  { id: 26, name: "الكف", cycle: "الأنث", start: "2026-11-02", end: "2026-11-13", note: "الجو معتدل أقل جفافاً." },
-  { id: 27, name: "الثريا", cycle: "الأنث", start: "2026-11-14", end: "2026-11-25", note: "الجو معتدل يميل للبرودة ليلاً." },
-  { id: 28, name: "المجيدح", cycle: "الأنث", start: "2026-11-26", end: "2026-12-07", note: "الجو يميل للبرودة كثيراً." },
-  { id: 29, name: "الجوزاء", cycle: "الأنث", start: "2026-12-08", end: "2026-12-19", note: "الجو بارد." },
-  { id: 30, name: "المرزم", cycle: "الأنث", start: "2026-12-20", end: "2026-12-31", note: "الجو أكثر برودة، أطول ليل وأقصر نهار." },
-];
+import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS, CALENDAR_2026 } from '@/lib/location-data';
 
 function getAdjustedNawaaInfo(offsetDays: number = 0) {
   const now = new Date();
@@ -103,7 +69,7 @@ export default function Home() {
     setCurrentNawaa(nawaa);
 
     if (nawaa) {
-      const baseRecs = NAWAA_RECOMMENDATIONS[nawaa.name] || { planting: [], activities: [], warnings: [] };
+      const baseRecs = JSON.parse(JSON.stringify(NAWAA_RECOMMENDATIONS[nawaa.name] || { planting: [], activities: [], warnings: [] }));
       
       // تعديل التوصيات بناءً على الحرارة الحقيقية (Real-time Correction)
       const adjustedWarnings = [...baseRecs.warnings];
@@ -112,6 +78,11 @@ export default function Home() {
         adjustedWarnings.push("الحرارة أعلى من المعتاد: كثّف الري المسائي");
       } else if (liveTemp < expectedTemp - 5) {
         adjustedWarnings.push("برد مفاجئ: احمِ الشتلات الحساسة من التيارات الباردة");
+      }
+
+      // إضافة محاصيل خاصة بجدة والمنطقة الغربية إذا تم اختيارها
+      if (zoneId === 'west' && nawaa.name === "الثريا") {
+        baseRecs.planting.push("المانجو", "البابايا");
       }
 
       setRecommendations({
