@@ -8,7 +8,7 @@ import { CheckCircle2, AlertTriangle, LocateFixed, Loader2 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { CLIMATE_ZONES_DATA, CITIES_COORDINATES } from '@/lib/location-data';
+import { CLIMATE_ZONES_DATA, CITIES_COORDINATES, getNearestCity } from '@/lib/location-data';
 
 interface WeatherCompareProps {
   expectedClimate?: {
@@ -41,22 +41,31 @@ export default function WeatherCompare({ expectedClimate, onLocationUpdate }: We
       const score = Math.max(0, 100 - (diff * 5)); 
       setMatchScore(Math.round(score));
       
-      const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(locationName)) || CLIMATE_ZONES_DATA[0];
+      // إذا كان التحديد آلياً، نحاول اكتشاف اسم المدينة من الإحداثيات
+      let finalCityName = locationName;
+      if (isAuto) {
+        finalCityName = getNearestCity(lat, lon);
+      }
+
+      const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(finalCityName)) || CLIMATE_ZONES_DATA[0];
+      setSelectedCity(finalCityName);
+      setCurrentZone(zone);
 
       if (isAuto) {
-        setSelectedCity(locationName);
         setIsAutoLocation(true);
-        localStorage.setItem('user_city', 'auto');
+        localStorage.setItem('user_city', finalCityName);
         localStorage.setItem('user_lat', lat.toString());
         localStorage.setItem('user_lon', lon.toString());
+        localStorage.setItem('user_is_auto', 'true');
       } else {
         setIsAutoLocation(false);
-        localStorage.setItem('user_city', locationName);
+        localStorage.setItem('user_city', finalCityName);
         localStorage.removeItem('user_lat');
         localStorage.removeItem('user_lon');
+        localStorage.removeItem('user_is_auto');
       }
       
-      if (onLocationUpdate) onLocationUpdate(locationName, currentTemp, zone.id);
+      if (onLocationUpdate) onLocationUpdate(finalCityName, currentTemp, zone.id);
     } catch (err) {
       console.error(err);
     } finally {
@@ -84,7 +93,7 @@ export default function WeatherCompare({ expectedClimate, onLocationUpdate }: We
     if ("geolocation" in navigator) {
       setIsSyncing(true);
       navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "موقعك الحالي", true),
+        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "جاري التعرف...", true),
         () => {
           handleCityChange("الطائف");
         },
@@ -97,9 +106,10 @@ export default function WeatherCompare({ expectedClimate, onLocationUpdate }: We
     const savedCity = localStorage.getItem('user_city');
     const savedLat = localStorage.getItem('user_lat');
     const savedLon = localStorage.getItem('user_lon');
+    const isAuto = localStorage.getItem('user_is_auto') === 'true';
 
-    if (savedCity === 'auto' && savedLat && savedLon) {
-      fetchWeather(parseFloat(savedLat), parseFloat(savedLon), "موقعك الحالي", true);
+    if (isAuto && savedLat && savedLon) {
+      fetchWeather(parseFloat(savedLat), parseFloat(savedLon), "جاري التعرف...", true);
     } else if (savedCity && CITIES_COORDINATES[savedCity]) {
       handleCityChange(savedCity);
     } else {
@@ -115,19 +125,18 @@ export default function WeatherCompare({ expectedClimate, onLocationUpdate }: We
             {isSyncing && <Loader2 className="h-3 w-3 animate-spin" />}
             مقارنة الطقس الميداني
           </CardTitle>
-          <p className="text-[10px] text-muted-foreground font-medium">مزامنة آليّة لمدينتك المحفوظة</p>
+          <p className="text-[10px] text-muted-foreground font-medium">مزامنة آليّة لموقعك الحالي</p>
         </div>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-6">
         <div className="flex gap-2">
           <div className="flex-1">
-            <Select value={isAutoLocation ? "auto" : selectedCity} onValueChange={handleCityChange}>
+            <Select value={selectedCity} onValueChange={handleCityChange}>
               <SelectTrigger className="h-10 rounded-xl border-primary/20 bg-muted/30 focus:ring-primary text-right flex-row-reverse">
                 <SelectValue placeholder="اختر مدينتك" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {isAutoLocation && <SelectItem value="auto">موقعك الحالي</SelectItem>}
                 {CLIMATE_ZONES_DATA.map((zone) => (
                   <SelectGroup key={zone.id}>
                     <SelectLabel className="text-primary font-bold pr-8 text-right">{zone.name}</SelectLabel>

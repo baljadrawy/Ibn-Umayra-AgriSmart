@@ -75,6 +75,21 @@ export const CITIES_COORDINATES: Record<string, { lat: number, lon: number }> = 
   'بدر': { lat: 23.77, lon: 38.79 },
 };
 
+export function getNearestCity(lat: number, lon: number): string {
+  let minDistance = Infinity;
+  let nearestCity = "الطائف";
+
+  for (const [city, coords] of Object.entries(CITIES_COORDINATES)) {
+    // حساب المسافة البسيطة (Euclidean) لتحديد أقرب مدينة معرفة في قاعدة بياناتنا
+    const d = Math.sqrt(Math.pow(lat - coords.lat, 2) + Math.pow(lon - coords.lon, 2));
+    if (d < minDistance) {
+      minDistance = d;
+      nearestCity = city;
+    }
+  }
+  return nearestCity;
+}
+
 export const CLIMATE_ZONES_DATA = [
   {
     id: 'highlands',
@@ -122,7 +137,7 @@ export const CALENDAR_2026 = [
   { id: 6, name: "العطف", cycle: "الدبور", start: "2026-03-05", end: "2026-03-16", note: "الجو يميل للاعتدال مع برودة ليلاً، رياح غالباً غربية إلى جنوبية غربية." },
   { id: 7, name: "السماك", cycle: "الكنة", start: "2026-03-17", end: "2026-03-28", note: "الجو معتدل، موسم نزول الأمطار إذا لم تهب الرياح الغربية السريعة، أفضل أوقات الإزهار." },
   { id: 8, name: "السميك", cycle: "الكنة", start: "2026-03-29", end: "2026-04-09", note: "الجو معتدل جميل جداً إذا لم تهب الرياح الغربية الشديدة." },
-  { id: 9, name: "العقرب", cycle: "الكنة", start: "2026-04-10", end: "2026-04-21", note: "الجو معتدل وقد يتخلله برد قارس، الرياح هادئة متقلبة." },
+  { id: 9, name: "العقرب", cycle: "الكنة", start: "2026-04-10", end: "2026-04-21", note: "الجو معتدل وقد يتخلله برد قارس، رياح هادئة متقلبة." },
   { id: 10, name: "العقيرب", cycle: "الكنة", start: "2026-04-22", end: "2026-05-03", note: "الجو معتدل يميل للدفء، الرياح متقلبة من شرقية إلى غربية." },
   { id: 11, name: "الكف", cycle: "الكنة", start: "2026-05-04", end: "2026-05-15", note: "الجو دافئ يميل للحرارة الملحوظة، الرياح غالباً شرقية إلى جنوبية غربية." },
   { id: 12, name: "الثريا", cycle: "الغفر", start: "2026-05-16", end: "2026-05-27", note: "الجو دافئ يميل للحرارة كثيراً، الرياح غالباً من شرقية إلى غربية." },

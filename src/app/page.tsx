@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS, CALENDAR_2026 } from '@/lib/location-data';
+import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS, CALENDAR_2026, getNearestCity } from '@/lib/location-data';
 
 function getAdjustedNawaaInfo(offsetDays: number = 0) {
   const now = new Date();
@@ -104,6 +104,7 @@ export default function Home() {
   const handleOnboardingManual = () => {
     if (onboardingCity) {
       localStorage.setItem('user_city', onboardingCity);
+      localStorage.removeItem('user_is_auto');
       setShowOnboarding(false);
       window.location.reload();
     }
@@ -112,9 +113,11 @@ export default function Home() {
   const handleOnboardingAuto = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition((pos) => {
-        localStorage.setItem('user_city', 'auto');
+        const nearestCity = getNearestCity(pos.coords.latitude, pos.coords.longitude);
+        localStorage.setItem('user_city', nearestCity);
         localStorage.setItem('user_lat', pos.coords.latitude.toString());
         localStorage.setItem('user_lon', pos.coords.longitude.toString());
+        localStorage.setItem('user_is_auto', 'true');
         setShowOnboarding(false);
         window.location.reload();
       });
