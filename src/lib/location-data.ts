@@ -162,9 +162,9 @@ export const CALENDAR_2026 = [
 
 export function getAdjustedNawaaInfo(offsetDays: number = 0) {
   const now = new Date();
+  // effectiveDate: الناريخ الذي نستخدمه للبحث عن النجم بناء على الإزاحة
   const effectiveDate = new Date(now.getTime() - (offsetDays * 24 * 60 * 60 * 1000));
   
-  // Year-agnostic matching: match month and day against the 2026 data
   const currentMonth = String(effectiveDate.getMonth() + 1).padStart(2, '0');
   const currentDay = String(effectiveDate.getDate()).padStart(2, '0');
   const matchDate = `${currentMonth}-${currentDay}`;
@@ -172,16 +172,21 @@ export function getAdjustedNawaaInfo(offsetDays: number = 0) {
   const current = CALENDAR_2026.find(n => matchDate >= n.start && matchDate <= n.end);
 
   if (current) {
-    // Reconstruct dates for the current year to calculate progress
     const currentYear = now.getFullYear();
     const startParts = current.start.split('-');
     const endParts = current.end.split('-');
     
-    const start = new Date(currentYear, parseInt(startParts[0]) - 1, parseInt(startParts[1]));
-    const end = new Date(currentYear, parseInt(endParts[0]) - 1, parseInt(endParts[1]));
+    // التواريخ المرجعية (الطائف)
+    const baseStart = new Date(currentYear, parseInt(startParts[0]) - 1, parseInt(startParts[1]));
+    const baseEnd = new Date(currentYear, parseInt(endParts[0]) - 1, parseInt(endParts[1]));
     
-    const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const elapsed = Math.round((effectiveDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    // التواريخ المعدلة للمدينة المختارة بناء على الإزاحة
+    const adjustedStart = new Date(baseStart.getTime() + (offsetDays * 24 * 60 * 60 * 1000));
+    const adjustedEnd = new Date(baseEnd.getTime() + (offsetDays * 24 * 60 * 60 * 1000));
+    
+    const duration = Math.round((baseEnd.getTime() - baseStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    // اليوم الحالي في النجم يحسب بالنسبة للبداية المعدلة
+    const elapsed = Math.round((now.getTime() - adjustedStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     
     const locale = 'ar-EG'; 
     const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
@@ -192,8 +197,8 @@ export function getAdjustedNawaaInfo(offsetDays: number = 0) {
       day_in_nawaa: Math.max(1, elapsed),
       days_remaining: Math.max(0, duration - elapsed),
       progress_percent: Math.min(100, Math.max(0, Math.round((elapsed / duration) * 100))),
-      startDate: start.toLocaleDateString(locale, dateOptions),
-      endDate: end.toLocaleDateString(locale, dateOptions),
+      startDate: adjustedStart.toLocaleDateString(locale, dateOptions),
+      endDate: adjustedEnd.toLocaleDateString(locale, dateOptions),
       duration: duration,
       climate: {
         temperature: "21°م - معتدل",
