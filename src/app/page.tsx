@@ -7,49 +7,13 @@ import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, ChevronRight, AlertCircle, Info, Navigation, LocateFixed, MapPin } from 'lucide-react';
+import { Sparkles, ChevronRight, AlertCircle, Info, Navigation, LocateFixed } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS, CALENDAR_2026, getNearestCity } from '@/lib/location-data';
-
-function getAdjustedNawaaInfo(offsetDays: number = 0) {
-  const now = new Date();
-  // تطبيق الإزاحة (Offset) لحساب النوء "الفعلي" للمنطقة
-  const effectiveDate = new Date(now.getTime() - (offsetDays * 24 * 60 * 60 * 1000));
-  const todayStr = effectiveDate.toISOString().split('T')[0];
-  const current = CALENDAR_2026.find(n => todayStr >= n.start && todayStr <= n.end);
-
-  if (current) {
-    const start = new Date(current.start);
-    const end = new Date(current.end);
-    const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    const elapsed = Math.round((effectiveDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    
-    const locale = 'ar-EG'; 
-    const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-
-    return {
-      name: current.name,
-      season: current.cycle,
-      day_in_nawaa: elapsed,
-      days_remaining: duration - elapsed,
-      progress_percent: Math.round((elapsed / duration) * 100),
-      startDate: start.toLocaleDateString(locale, dateOptions),
-      endDate: end.toLocaleDateString(locale, dateOptions),
-      duration: duration,
-      climate: {
-        temperature: "21°م - معتدل",
-        wind: "جنوبية شرقية",
-        rain: "10%",
-        notes: current.note
-      }
-    };
-  }
-  return null;
-}
+import { CLIMATE_ZONES_DATA, NAWAA_RECOMMENDATIONS, getNearestCity, getAdjustedNawaaInfo } from '@/lib/location-data';
 
 export default function Home() {
   const [currentNawaa, setCurrentNawaa] = useState<any>(null);
@@ -71,17 +35,15 @@ export default function Home() {
     if (nawaa) {
       const baseRecs = JSON.parse(JSON.stringify(NAWAA_RECOMMENDATIONS[nawaa.name] || { planting: [], activities: [], warnings: [] }));
       
-      // تعديل التوصيات بناءً على الحرارة الحقيقية (Real-time Correction)
       const adjustedWarnings = [...baseRecs.warnings];
-      const expectedTemp = 21; // متوسط افتراضي للنوء
+      const expectedTemp = 21; 
       if (liveTemp > expectedTemp + 5) {
         adjustedWarnings.push("الحرارة أعلى من المعتاد: كثّف الري المسائي");
       } else if (liveTemp < expectedTemp - 5) {
         adjustedWarnings.push("برد مفاجئ: احمِ الشتلات الحساسة من التيارات الباردة");
       }
 
-      // إضافة محاصيل خاصة بجدة والمنطقة الغربية إذا تم اختيارها
-      if (zoneId === 'west' && nawaa.name === "الثريا") {
+      if (zoneId === 'west' && (nawaa.name === "الثريا" || nawaa.name === "المجيدح")) {
         baseRecs.planting.push("المانجو", "البابايا");
       }
 
@@ -93,11 +55,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    setCurrentNawaa(getAdjustedNawaaInfo());
-    
+    // Initial Nawaa set based on local storage if available
     const savedCity = localStorage.getItem('user_city');
     if (!savedCity) {
+      setCurrentNawaa(getAdjustedNawaaInfo(0));
       setTimeout(() => setShowOnboarding(true), 1500);
+    } else {
+      const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(savedCity)) || CLIMATE_ZONES_DATA[0];
+      setCurrentNawaa(getAdjustedNawaaInfo(zone.offset));
     }
   }, []);
 
@@ -129,7 +94,7 @@ export default function Home() {
       <div className="bg-accent/10 py-2 border-b border-accent/20">
         <div className="container mx-auto px-4 flex items-center justify-center gap-2 text-[10px] md:text-xs font-bold text-primary">
           <AlertCircle className="h-3 w-3" />
-          <span>إطلاق تجريبي: التقويم الزراعي المطور - بيانات 2026 مهيكلة آلياً</span>
+          <span>إطلاق تجريبي: التقويم الزراعي المطور - البيانات محدثة زمنياً ومكانياً</span>
         </div>
       </div>
 
@@ -139,11 +104,11 @@ export default function Home() {
             <Navigation className="h-3 w-3" />
             النظام يدعم التحديد الآلي واليدوي لكافة مناطق المملكة
           </Badge>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold apple-text-gradient leading-[1.1] tracking-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold apple-text-gradient leading-[1.1] tracking-tight text-right md:text-center">
             التقويم الزراعي المطور <br />
             <span className="text-primary">بناءً على تقويم ابن عميرة</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-medium">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto font-medium text-right md:text-center">
             بوابة ذكية تدمج الخبرة التاريخية للمملكة مع أحدث تقنيات الرصد والذكاء الاصطناعي.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-4">
