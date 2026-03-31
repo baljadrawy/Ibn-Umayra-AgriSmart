@@ -7,7 +7,7 @@ import WeatherCompare from '@/components/dashboard/WeatherCompare';
 import RecommendationList from '@/components/dashboard/RecommendationList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, ChevronRight, AlertCircle, Info, Navigation, LocateFixed } from 'lucide-react';
+import { Sparkles, ChevronRight, AlertCircle, Info, Navigation, LocateFixed, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -19,6 +19,11 @@ export default function Home() {
   const [currentNawaa, setCurrentNawaa] = useState<any>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingCity, setOnboardingCity] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
+  const [activeCity, setActiveCity] = useState<string>('');
+  const [activeLiveTemp, setActiveLiveTemp] = useState<number | null>(null);
+  const [activeZoneName, setActiveZoneName] = useState<string>('');
   const [recommendations, setRecommendations] = useState<{planting: string[], activities: string[], warnings: string[]}>({
     planting: [],
     activities: [],
@@ -31,20 +36,29 @@ export default function Home() {
     const zone = CLIMATE_ZONES_DATA.find(z => z.id === zoneId) || CLIMATE_ZONES_DATA[0];
     const nawaa = getAdjustedNawaaInfo(zone.offset);
     setCurrentNawaa(nawaa);
+    setActiveCity(cityName);
+    setActiveLiveTemp(liveTemp);
+    setActiveZoneName(zone.name);
 
     if (nawaa) {
       const baseRecs = JSON.parse(JSON.stringify(NAWAA_RECOMMENDATIONS[nawaa.name] || { planting: [], activities: [], warnings: [] }));
-      
+
       const adjustedWarnings = [...baseRecs.warnings];
-      const expectedTemp = 21; 
+      const expectedTemp = nawaa.climate?.expectedTemp ?? 21;
       if (liveTemp > expectedTemp + 5) {
         adjustedWarnings.push("الحرارة أعلى من المعتاد: كثّف الري المسائي");
       } else if (liveTemp < expectedTemp - 5) {
         adjustedWarnings.push("برد مفاجئ: احمِ الشتلات الحساسة من التيارات الباردة");
       }
 
-      if (zoneId === 'west' && (nawaa.name === "الثريا" || nawaa.name === "المجيدح")) {
-        baseRecs.planting.push("المانجو", "البابايا");
+      // إضافة المحاصيل الاستوائية للمنطقة الغربية فقط إذا لم تكن موجودة مسبقاً في القائمة
+      if (zoneId === 'west') {
+        const tropicalCrops = ["المانجو", "البابايا"];
+        tropicalCrops.forEach(crop => {
+          if (!baseRecs.planting.includes(crop)) {
+            baseRecs.planting.push(crop);
+          }
+        });
       }
 
       setRecommendations({
@@ -71,22 +85,44 @@ export default function Home() {
       localStorage.setItem('user_city', onboardingCity);
       localStorage.removeItem('user_is_auto');
       setShowOnboarding(false);
-      window.location.reload();
+      // تحديث الـ state مباشرة بدلاً من إعادة التحميل
+      const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(onboardingCity)) || CLIMATE_ZONES_DATA[0];
+      setCurrentNawaa(getAdjustedNawaaInfo(zone.offset));
     }
   };
 
   const handleOnboardingAuto = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((pos) => {
+    if (!("geolocation" in navigator)) {
+      setLocationError("المتصفح لا يدعم تحديد الموقع. الرجاء الاختيار اليدوي.");
+      return;
+    }
+    setIsLocating(true);
+    setLocationError("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
         const nearestCity = getNearestCity(pos.coords.latitude, pos.coords.longitude);
         localStorage.setItem('user_city', nearestCity);
         localStorage.setItem('user_lat', pos.coords.latitude.toString());
         localStorage.setItem('user_lon', pos.coords.longitude.toString());
         localStorage.setItem('user_is_auto', 'true');
+        setIsLocating(false);
         setShowOnboarding(false);
-        window.location.reload();
-      });
-    }
+        // تحديث الـ state مباشرة
+        const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(nearestCity)) || CLIMATE_ZONES_DATA[0];
+        setCurrentNawaa(getAdjustedNawaaInfo(zone.offset));
+      },
+      (err) => {
+        setIsLocating(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setLocationError("تم رفض إذن الموقع. الرجاء الاختيار اليدوي من القائمة.");
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setLocationError("تعذّر تحديد موقعك. الرجاء الاختيار اليدوي.");
+        } else {
+          setLocationError("انتهت مهلة تحديد الموقع. الرجاء المحاولة مجدداً.");
+        }
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    );
   };
 
   return (
@@ -156,7 +192,13 @@ export default function Home() {
                 />
              </div>
              <div className="flex">
-                <RecommendationList recommendations={recommendations} />
+                <RecommendationList
+                  recommendations={recommendations}
+                  city={activeCity || undefined}
+                  liveTemp={activeLiveTemp}
+                  expectedTemp={currentNawaa?.climate?.expectedTemp}
+                  zoneName={activeZoneName || undefined}
+                />
              </div>
           </div>
         </div>
@@ -177,14 +219,20 @@ export default function Home() {
           <div className="py-6 space-y-6">
             <div className="space-y-3">
               <p className="text-xs font-bold text-muted-foreground pr-1 uppercase">الخيار الأول: تحديد آلي</p>
-              <Button 
-                onClick={handleOnboardingAuto} 
-                variant="outline" 
+              <Button
+                onClick={handleOnboardingAuto}
+                variant="outline"
+                disabled={isLocating}
                 className="w-full h-14 rounded-2xl border-primary/20 hover:bg-primary/5 gap-3 text-lg"
               >
-                <LocateFixed className="h-5 w-5 text-primary" />
-                تحديد موقعي آلياً
+                {isLocating
+                  ? <><Loader2 className="h-5 w-5 text-primary animate-spin" /> جاري تحديد موقعك...</>
+                  : <><LocateFixed className="h-5 w-5 text-primary" /> تحديد موقعي آلياً</>
+                }
               </Button>
+              {locationError && (
+                <p className="text-xs text-destructive text-right pr-1">{locationError}</p>
+              )}
             </div>
 
             <div className="relative">

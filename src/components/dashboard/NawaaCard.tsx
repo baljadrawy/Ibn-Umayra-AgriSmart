@@ -10,6 +10,8 @@ interface NawaaCardProps {
     progress_percent: number;
     startDate: string;
     endDate: string;
+    startHijri?: string;
+    endHijri?: string;
     duration: number;
     climate: {
       temperature: string;
@@ -34,14 +36,21 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="p-4 bg-muted/50 rounded-2xl border border-black/5 text-right">
-            <p className="text-[9px] text-muted-foreground font-bold uppercase mb-1">دخول النجم (ميلادي)</p>
+        {/* التواريخ: ميلادي + هجري */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="p-4 bg-muted/50 rounded-2xl border border-black/5 text-right space-y-1">
+            <p className="text-[9px] text-muted-foreground font-bold uppercase">دخول النجم</p>
             <p className="text-sm font-bold">{nawaa.startDate}</p>
+            {nawaa.startHijri && (
+              <p className="text-[10px] text-primary/60 font-medium">{nawaa.startHijri}</p>
+            )}
           </div>
-          <div className="p-4 bg-muted/50 rounded-2xl border border-black/5 text-right">
-            <p className="text-[9px] text-muted-foreground font-bold uppercase mb-1">خروج النجم (ميلادي)</p>
+          <div className="p-4 bg-muted/50 rounded-2xl border border-black/5 text-right space-y-1">
+            <p className="text-[9px] text-muted-foreground font-bold uppercase">خروج النجم</p>
             <p className="text-sm font-bold">{nawaa.endDate}</p>
+            {nawaa.endHijri && (
+              <p className="text-[10px] text-primary/60 font-medium">{nawaa.endHijri}</p>
+            )}
           </div>
         </div>
 
@@ -72,7 +81,7 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
               <span className="text-[10px] font-bold">اليوم الحالي</span>
               <Clock className="h-3 w-3" />
             </div>
-            <p className="text-lg font-bold">يوم # {nawaa.day_in_nawaa}</p>
+            <p className="text-lg font-bold">يوم {nawaa.day_in_nawaa} / {nawaa.duration}</p>
           </div>
         </div>
       </div>
@@ -81,13 +90,13 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
         <div className="space-y-2">
           <div className="flex justify-between text-[10px] font-bold text-muted-foreground">
             <span>{nawaa.progress_percent}% مكتمل</span>
-            <span>متبقي {nawaa.days_remaining} أيام</span>
+            <span>متبقي {nawaa.days_remaining} يوم</span>
           </div>
           <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-             <div 
-               className="h-full bg-primary transition-all duration-1000 ease-out" 
-               style={{ width: `${nawaa.progress_percent}%` }}
-             ></div>
+            <div
+              className="h-full bg-primary transition-all duration-1000 ease-out"
+              style={{ width: `${nawaa.progress_percent}%` }}
+            ></div>
           </div>
         </div>
         <p className="text-xs font-medium text-muted-foreground leading-relaxed italic text-right border-r-2 border-primary/20 pr-3">

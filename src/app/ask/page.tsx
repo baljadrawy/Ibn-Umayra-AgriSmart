@@ -19,6 +19,8 @@ type Message = {
 export default function AskAI() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userZoneId, setUserZoneId] = useState('highlands');
+  const [userCity, setUserCity] = useState('الطائف');
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -30,6 +32,19 @@ export default function AskAI() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  useEffect(() => {
+    // قراءة المنطقة المحفوظة من localStorage
+    const savedCity = localStorage.getItem('user_city');
+    if (savedCity) {
+      setUserCity(savedCity);
+      // البحث عن الحزام المناخي بناءً على المدينة المحفوظة
+      import('@/lib/location-data').then(({ CLIMATE_ZONES_DATA }) => {
+        const zone = CLIMATE_ZONES_DATA.find(z => z.cities.includes(savedCity));
+        if (zone) setUserZoneId(zone.id);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -48,7 +63,7 @@ export default function AskAI() {
       // In a real app, zone_id would come from user profile
       const response = await askAIAgentAgriculturalAdvice({
         question: userMessage,
-        zone_id: 1, // Default to Taif/Highlands
+        zone_id: userZoneId, // مشتق من localStorage أو 'highlands' افتراضياً
         currentDate: new Date().toISOString().split('T')[0]
       });
 
@@ -176,7 +191,7 @@ export default function AskAI() {
               </div>
               <div className="flex gap-3 text-xs leading-relaxed">
                 <MapPin className="h-4 w-4 text-primary shrink-0" />
-                <p>سيتم ربط إجاباتك حالياً بمنطقة الطائف، قريباً سندعم باقي أحزمة المملكة.</p>
+                <p>الإجابات مرتبطة بمنطقتك المحفوظة: <strong>{userCity}</strong>. يمكنك تغييرها من الصفحة الرئيسية.</p>
               </div>
               <div className="pt-2 border-t border-primary/10">
                 <p className="text-[10px] font-bold mb-2">أسئلة شائعة:</p>
@@ -197,17 +212,17 @@ export default function AskAI() {
 
           <Card className="border-none shadow-md">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-headline">إحصائيات ذكية</CardTitle>
+              <CardTitle className="text-sm font-headline">إحصائيات التقويم</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="text-center p-3 rounded-lg bg-muted/30">
-                  <p className="text-[10px] text-muted-foreground mb-1">نسبة دقة التوقعات</p>
-                  <p className="text-2xl font-bold text-primary">94%</p>
+                  <p className="text-[10px] text-muted-foreground mb-1">عدد الأنواء</p>
+                  <p className="text-2xl font-bold text-primary">30</p>
                 </div>
                 <div className="text-center p-3 rounded-lg bg-muted/30">
-                  <p className="text-[10px] text-muted-foreground mb-1">المحاصيل المدعومة</p>
-                  <p className="text-2xl font-bold text-primary">120+</p>
+                  <p className="text-[10px] text-muted-foreground mb-1">الأحزمة المناخية المدعومة</p>
+                  <p className="text-2xl font-bold text-primary">5</p>
                 </div>
               </div>
             </CardContent>
