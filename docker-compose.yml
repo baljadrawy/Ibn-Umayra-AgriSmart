@@ -1,0 +1,31 @@
+services:
+
+  # ── الموقع (Next.js) ──────────────────────────────
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agrismart-web
+    restart: unless-stopped
+    ports:
+      - "9002:3000"
+    environment:
+      - NODE_ENV=production
+      # اختياري: مفتاح Gemini للمستشار الذكي
+      # - GEMINI_API_KEY=your_key_here
+
+  # ── بوت تلقرام (Python) ──────────────────────────
+  telegram-bot:
+    build:
+      context: ./telegram-bot
+      dockerfile: Dockerfile
+    container_name: agrismart-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - ADMIN_CHAT_ID=${ADMIN_CHAT_ID}
+    volumes:
+      - bot-data:/app/data
+
+volumes:
+  bot-data:

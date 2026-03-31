@@ -6,8 +6,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'التقويم الزراعي المطور المبني على تقويم ابن عميرة',
-  description: 'نظام زراعي ذكي يدمج الخبرة التراثية السعودية مع الذكاء الاصطناعي وبيانات الطقس الحية - إطلاق تجريبي',
+  title: 'التقويم الزراعي المطور',
+  description: 'نظام زراعي ذكي مبني على تقويم ابن عميرة التراثي، معدَّل آلياً لكل مناطق المملكة مع بيانات الطقس الحي',
 };
 
 export default function RootLayout({
@@ -28,9 +28,20 @@ export default function RootLayout({
           <main className="flex-1">
             {children}
           </main>
-          <footer className="py-8 text-center border-t bg-muted/50">
+          <footer className="py-8 text-center border-t bg-muted/50 space-y-1">
             <p className="text-muted-foreground text-sm font-medium">
-              © {new Date().getFullYear()} التقويم الزراعي المطور - إطلاق تجريبي. جميع الحقوق محفوظة.
+              © {new Date().getFullYear()} التقويم الزراعي المطور. جميع الحقوق محفوظة.
+            </p>
+            <p className="text-muted-foreground text-xs">
+              تطوير{' '}
+              <a
+                href="https://twitter.com/jadrawy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                @jadrawy
+              </a>
             </p>
           </footer>
           <Toaster />

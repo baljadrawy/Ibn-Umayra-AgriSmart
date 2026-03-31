@@ -5,45 +5,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, MapPin, Info, Sun, Snowflake, Leaf, Wind, Droplets } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { CALENDAR_2026 } from '@/lib/location-data';
 
-// البيانات الكاملة لتقويم ابن عميرة المناخي 2026 المستخرجة من الصورة
-const CALENDAR_DATA = [
-  { id: 1, name: "الذراع", cycle: "الأسدية", start: "2026-01-02", end: "2026-01-12", hijri: "13 رجب - 23 رجب", note: "موعد البرد القارس. الرياح غربية وقد تتحول لشرقية سريعة باردة." },
-  { id: 2, name: "النثرة", cycle: "الأسدية", start: "2026-01-13", end: "2026-01-25", hijri: "24 رجب - 06 شعبان", note: "درجة الحرارة تصل لأقل مستوى لها طوال العام. رياح شرقية رطبة باردة." },
-  { id: 3, name: "الطرف", cycle: "الأسدية", start: "2026-01-26", end: "2026-02-05", hijri: "07 شعبان - 17 شعبان", note: "درجة الحرارة تميل للاعتدال ليلاً. رياح غربية شديدة البرودة وسريعة." },
-  
-  { id: 4, name: "الجبهة", cycle: "الدبور", start: "2026-02-06", end: "2026-02-19", hijri: "18 شعبان - 02 رمضان", note: "تحسن في درجات الحرارة مع بعض التقلبات. الرياح غالباً غربية إلى جنوبية غربية." },
-  { id: 5, name: "الزبرة", cycle: "الدبور", start: "2026-02-20", end: "2026-03-04", hijri: "03 رمضان - 15 رمضان", note: "الجو متقلب من اعتدال إلى برد قارس. الرياح غربية نشطة منذ الظهر." },
-  { id: 6, name: "العطف", cycle: "الدبور", start: "2026-03-05", end: "2026-03-16", hijri: "16 رمضان - 27 رمضان", note: "الجو يميل للاعتدال مع برودة ليلاً. الرياح غالباً غربية إلى جنوبية غربية." },
-  
-  { id: 7, name: "السماك", cycle: "الكنة", start: "2026-03-17", end: "2026-03-28", hijri: "28 رمضان - 10 شوال", note: "الجو معتدل. موسم نزول الأمطار إذا لم تهب الرياح الغربية السريعة." },
-  { id: 8, name: "السميك", cycle: "الكنة", start: "2026-03-29", end: "2026-04-09", hijri: "11 شوال - 22 شوال", note: "الجو معتدل جميل جداً إذا لم تهب الرياح الغربية الشديدة." },
-  { id: 9, name: "العقرب", cycle: "الكنة", start: "2026-04-10", end: "2026-04-21", hijri: "23 شوال - 04 ذو القعدة", note: "الجو معتدل وقد يتخلله برد قارس. الرياح هادئة متقلبة." },
-  { id: 10, name: "العقيرب", cycle: "الكنة", start: "2026-04-22", end: "2026-05-03", hijri: "05 ذو القعدة - 16 ذو القعدة", note: "الجو معتدل يميل للدفء. الرياح متقلبة من شرقية إلى غربية." },
-  { id: 11, name: "الكف", cycle: "الكنة", start: "2026-05-04", end: "2026-05-15", hijri: "17 ذو القعدة - 28 ذو القعدة", note: "الجو دافئ يميل للحرارة الملحوظة. الرياح غالباً شرقية إلى جنوبية غربية." },
-  
-  { id: 12, name: "الثريا", cycle: "الغفر", start: "2026-05-16", end: "2026-05-27", hijri: "29 ذو القعدة - 11 ذو الحجة", note: "الجو دافئ يميل للحرارة كثيراً. الرياح غالباً من شرقية إلى غربية." },
-  { id: 13, name: "المجيدح", cycle: "الغفر", start: "2026-05-28", end: "2026-06-08", hijri: "12 ذو الحجة - 22 ذو الحجة", note: "الجو شديد الحرارة. الأمطار نادرة إلى حد ما." },
-  { id: 14, name: "الجوزاء", cycle: "الغفر", start: "2026-06-09", end: "2026-06-20", hijri: "23 ذو الحجة - 05 محرم", note: "الجو حار شديد وجاف. الأمطار نادرة وموضعية." },
-  { id: 15, name: "المرزم", cycle: "الغفر", start: "2026-06-21", end: "2026-07-02", hijri: "06 محرم - 17 محرم", note: "الجو شديد الحرارة والسموم. الرياح غالباً غربية." },
-  
-  { id: 16, name: "الذراع", cycle: "الخضر", start: "2026-07-03", end: "2026-07-14", hijri: "18 محرم - 29 محرم", note: "الجو شديد الحرارة. الرياح غالباً غربية، بداية نزول فواكه الطائف." },
-  { id: 17, name: "النثرة", cycle: "الخضر", start: "2026-07-15", end: "2026-07-26", hijri: "01 صفر - 12 صفر", note: "الجو صحو شديد الحرارة جاف. الرياح غالباً شرقية إلى شمالية." },
-  { id: 18, name: "الطرف", cycle: "الخضر", start: "2026-08-07", end: "2026-08-07", hijri: "13 صفر - 24 صفر", note: "درجة الحرارة تبدأ في الانخفاض. الرياح غربية غربية شبه مستمرة." },
-  { id: 19, name: "الجبهة", cycle: "الخضر", start: "2026-08-08", end: "2026-08-21", hijri: "25 صفر - 08 ربيع أول", note: "الجو أقل حرارة من سابقه. بعض الأمطار الموضعية." },
-  { id: 20, name: "الزبرة", cycle: "الخضر", start: "2026-08-22", end: "2026-09-02", hijri: "09 ربيع أول - 20 ربيع أول", note: "الجو صاف يميل إلى الصفاء. الرياح غربية إلى جنوبية غربية." },
-  { id: 21, name: "العطف", cycle: "الخضر", start: "2026-09-03", end: "2026-09-14", hijri: "21 ربيع أول - 03 ربيع ثاني", note: "الجو يميل للاعتدال ولكنه غير لطيف. رياح جنوبية تميل للجفاف." },
-  
-  { id: 22, name: "السماك", cycle: "الأنث", start: "2026-09-15", end: "2026-09-26", hijri: "04 ربيع ثاني - 15 ربيع ثاني", note: "الجو معتدل جاف ومتميز عن سابقه. الرياح شرقية صباحاً." },
-  { id: 23, name: "السميك", cycle: "الأنث", start: "2026-09-27", end: "2026-10-08", hijri: "16 ربيع ثاني - 27 ربيع ثاني", note: "الجو معتدل جاف يميل للبرد ليلاً. الرياح شرقية إلى جنوبية." },
-  { id: 24, name: "العقرب", cycle: "الأنث", start: "2026-10-09", end: "2026-10-20", hijri: "28 ربيع ثاني - 09 جمادى أول", note: "الجو جاف معتدل الحرارة. الرياح غربية نشطة." },
-  { id: 25, name: "العقيرب", cycle: "الأنث", start: "2026-10-21", end: "2026-11-01", hijri: "10 جمادى أول - 21 جمادى أول", note: "الجو بارد يميل للبرودة. رياح شمالية غربية مثيرة للأتربة." },
-  { id: 26, name: "الكف", cycle: "الأنث", start: "2026-11-02", end: "2026-11-13", hijri: "22 جمادى أول - 03 جمادى ثاني", note: "الجو معتدل أقل جفافاً من سابقه. الرياح شمالية غربية." },
-  { id: 27, name: "الثريا", cycle: "الأنث", start: "2026-11-14", end: "2026-11-25", hijri: "04 جمادى ثاني - 15 جمادى ثاني", note: "الجو معتدل يميل للبرودة ليلاً. رياح غربية هادئة." },
-  { id: 28, name: "المجيدح", cycle: "الأنث", start: "2026-11-26", end: "2026-12-07", hijri: "16 جمادى ثاني - 27 جمادى ثاني", note: "الجو يميل للبرودة كثيراً. رياح غربية إلى جنوبية." },
-  { id: 29, name: "الجوزاء", cycle: "الأنث", start: "2026-12-08", end: "2026-12-19", hijri: "28 جمادى ثاني - 10 رجب", note: "الجو بارد. الرياح غالباً غربية باردة رطبة." },
-  { id: 30, name: "المرزم", cycle: "الأنث", start: "2026-12-20", end: "2026-12-31", hijri: "11 رجب - 22 رجب", note: "الجو أكثر برودة. أطول ليل وأقصر نهار. الرياح باردة ورطبة." },
-];
+// تحويل التاريخ الهجري ديناميكياً بتقويم أم القرى — يعمل لأي سنة
+function toHijri(dateStr: string): string {
+  try {
+    return new Date(dateStr).toLocaleDateString('ar-SA-u-ca-islamic-umalqura', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    } as Intl.DateTimeFormatOptions);
+  } catch {
+    return '';
+  }
+}
+
+// يأخذ السنة الحالية تلقائياً — يعمل لأي سنة
+const toFullDate = (mmdd: string) => {
+  const year = new Date().getFullYear();
+  return `${year}-${mmdd}`;
+};
+
+const CALENDAR_DATA = CALENDAR_2026.map(n => ({
+  id: n.id,
+  name: n.name,
+  cycle: n.cycle,
+  start: toFullDate(n.start),
+  end: toFullDate(n.end),
+  hijriStart: toHijri(toFullDate(n.start)),
+  hijriEnd: toHijri(toFullDate(n.end)),
+  note: n.note,
+}));
 
 const cycles = [
   { name: "الأسدية", icon: Sun, color: "bg-yellow-600" },
@@ -133,10 +125,10 @@ export default function YearlyCalendar() {
                       </div>
                       <div className="space-y-2">
                         <div className="text-xs font-bold text-primary bg-primary/10 p-2 rounded-md">
-                          ميلادي: {formatDate(nawaa.start)} - {formatDate(nawaa.end)}
+                          {formatDate(nawaa.start)} — {formatDate(nawaa.end)}
                         </div>
-                        <div className="text-[10px] text-muted-foreground bg-muted p-2 rounded-md">
-                          هجري: {nawaa.hijri}
+                        <div className="text-[10px] text-muted-foreground bg-muted p-2 rounded-md leading-relaxed">
+                          {nawaa.hijriStart} — {nawaa.hijriEnd}
                         </div>
                       </div>
                     </CardHeader>

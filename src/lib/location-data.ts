@@ -127,9 +127,44 @@ export const CLIMATE_ZONES_DATA = [
   }
 ];
 
+// درجات الحرارة المتوقعة لكل نجم في منطقة الطائف (المرجع الأساسي للتقويم)
+// مشتقة من بيانات المناخ التاريخية للمنطقة
+export const NAWAA_TEMPERATURE: Record<number, { avg: number; label: string; wind: string; rain: string }> = {
+  1:  { avg: 8,  label: "8°م - بارد قارس",      wind: "غربية / شرقية باردة",     rain: "20%" },
+  2:  { avg: 6,  label: "6°م - بارد جداً",       wind: "شرقية رطبة باردة",        rain: "15%" },
+  3:  { avg: 10, label: "10°م - بارد",            wind: "غربية شديدة البرودة",     rain: "10%" },
+  4:  { avg: 14, label: "14°م - بارد معتدل",      wind: "غربية جنوبية غربية",      rain: "20%" },
+  5:  { avg: 16, label: "16°م - معتدل",           wind: "غربية نشطة",              rain: "25%" },
+  6:  { avg: 18, label: "18°م - معتدل",           wind: "غربية جنوبية غربية",      rain: "15%" },
+  7:  { avg: 20, label: "20°م - معتدل",           wind: "متقلبة هادئة",            rain: "35%" },
+  8:  { avg: 22, label: "22°م - معتدل دافئ",      wind: "غربية متقلبة",            rain: "10%" },
+  9:  { avg: 23, label: "23°م - معتدل دافئ",      wind: "هادئة متقلبة",            rain: "5%"  },
+  10: { avg: 26, label: "26°م - دافئ",            wind: "شرقية إلى غربية",         rain: "5%"  },
+  11: { avg: 28, label: "28°م - دافئ حار",        wind: "شرقية جنوبية غربية",      rain: "3%"  },
+  12: { avg: 30, label: "30°م - حار",             wind: "شرقية إلى غربية",         rain: "3%"  },
+  13: { avg: 33, label: "33°م - حار شديد",        wind: "غربية جنوبية",            rain: "2%"  },
+  14: { avg: 35, label: "35°م - حار جداً",        wind: "غربية جافة",              rain: "1%"  },
+  15: { avg: 36, label: "36°م - حار جداً سموم",   wind: "غربية سموم",              rain: "1%"  },
+  16: { avg: 35, label: "35°م - حار جداً",        wind: "غربية",                   rain: "2%"  },
+  17: { avg: 34, label: "34°م - حار جداً",        wind: "شرقية شمالية",            rain: "2%"  },
+  18: { avg: 32, label: "32°م - حار",             wind: "غربية شبه مستمرة",        rain: "5%"  },
+  19: { avg: 30, label: "30°م - حار",             wind: "متنوعة",                  rain: "8%"  },
+  20: { avg: 28, label: "28°م - دافئ",            wind: "غربية جنوبية غربية",      rain: "5%"  },
+  21: { avg: 26, label: "26°م - دافئ معتدل",      wind: "جنوبية جافة",             rain: "5%"  },
+  22: { avg: 24, label: "24°م - معتدل",           wind: "شرقية صباحاً",            rain: "5%"  },
+  23: { avg: 22, label: "22°م - معتدل",           wind: "شرقية جنوبية",            rain: "8%"  },
+  24: { avg: 20, label: "20°م - معتدل",           wind: "غربية نشطة",              rain: "10%" },
+  25: { avg: 17, label: "17°م - بارد معتدل",      wind: "شمالية غربية",            rain: "10%" },
+  26: { avg: 15, label: "15°م - بارد معتدل",      wind: "شمالية غربية",            rain: "15%" },
+  27: { avg: 13, label: "13°م - بارد",            wind: "غربية هادئة",             rain: "15%" },
+  28: { avg: 11, label: "11°م - بارد",            wind: "غربية جنوبية",            rain: "15%" },
+  29: { avg: 9,  label: "9°م - بارد",             wind: "غربية باردة رطبة",        rain: "20%" },
+  30: { avg: 7,  label: "7°م - بارد قارس",        wind: "باردة رطبة",              rain: "20%" },
+};
+
 export const CALENDAR_2026 = [
-  { id: 1, name: "الذراع", cycle: "الأسدية", start: "01-02", end: "01-12", note: "موعد البرد القارس، الرياح غربية وقد تتحول لشرقية سريعة باردة." },
-  { id: 2, name: "النثرة", cycle: "الأسدية", start: "01-13", end: "01-25", note: "درجة الحرارة تصل لأقل مستوى لها طوال العام، رياح شرقية رطبة باردة." },
+  { id: 1, name: "الذراع", cycle: "الأسدية", start: "01-02", end: "01-13", note: "موعد البرد القارس، الرياح غربية وقد تتحول لشرقية سريعة باردة." },
+  { id: 2, name: "النثرة", cycle: "الأسدية", start: "01-14", end: "01-25", note: "درجة الحرارة تصل لأقل مستوى لها طوال العام، رياح شرقية رطبة باردة." },
   { id: 3, name: "الطرف", cycle: "الأسدية", start: "01-26", end: "02-05", note: "درجة الحرارة تميل للاعتدال ليلاً، رياح غربية شديدة البرودة وسريعة." },
   { id: 4, name: "الجبهة", cycle: "الدبور", start: "02-06", end: "02-19", note: "تحسن في درجات الحرارة مع بعض التقلبات، الرياح غالباً غربية إلى جنوبية غربية." },
   { id: 5, name: "الزبرة", cycle: "الدبور", start: "02-20", end: "03-04", note: "الجو متقلب من اعتدال إلى برد قارس، الرياح غربية نشطة منذ الظهر." },
@@ -188,8 +223,16 @@ export function getAdjustedNawaaInfo(offsetDays: number = 0) {
     // اليوم الحالي في النجم يحسب بالنسبة للبداية المعدلة
     const elapsed = Math.round((now.getTime() - adjustedStart.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     
-    const locale = 'ar-EG'; 
+    const locale = 'ar-EG';
     const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
+
+    // التاريخ الهجري ديناميكياً باستخدام Intl API + تقويم أم القرى السعودي
+    const hijriOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', calendar: 'islamic-umalqura' } as Intl.DateTimeFormatOptions;
+    const hijriLocale = 'ar-SA-u-ca-islamic-umalqura';
+    const startHijri = adjustedStart.toLocaleDateString(hijriLocale, hijriOptions);
+    const endHijri = adjustedEnd.toLocaleDateString(hijriLocale, hijriOptions);
+
+    const tempData = NAWAA_TEMPERATURE[current.id] || { avg: 21, label: "21°م - معتدل", wind: "متنوعة", rain: "10%" };
 
     return {
       name: current.name,
@@ -199,11 +242,14 @@ export function getAdjustedNawaaInfo(offsetDays: number = 0) {
       progress_percent: Math.min(100, Math.max(0, Math.round((elapsed / duration) * 100))),
       startDate: adjustedStart.toLocaleDateString(locale, dateOptions),
       endDate: adjustedEnd.toLocaleDateString(locale, dateOptions),
+      startHijri,
+      endHijri,
       duration: duration,
       climate: {
-        temperature: "21°م - معتدل",
-        wind: "جنوبية شرقية",
-        rain: "10%",
+        temperature: tempData.label,
+        expectedTemp: tempData.avg,
+        wind: tempData.wind,
+        rain: tempData.rain,
         notes: current.note
       }
     };

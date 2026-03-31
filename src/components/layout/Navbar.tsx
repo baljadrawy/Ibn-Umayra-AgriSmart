@@ -26,7 +26,7 @@ export default function Navbar() {
           <Leaf className="h-6 w-6" />
           <div className="flex flex-col">
             <span className="text-sm sm:text-base leading-none">التقويم الزراعي المطور</span>
-            <span className="text-[9px] text-muted-foreground font-medium hidden sm:block">بناءً على تقويم ابن عميرة</span>
+            <span className="text-[9px] text-muted-foreground font-medium hidden sm:block">مبني على تقويم ابن عميرة</span>
           </div>
           <Badge variant="secondary" className="bg-accent/20 text-primary border-none text-[8px] px-1.5 py-0 rounded-sm">تجريبي</Badge>
         </Link>
