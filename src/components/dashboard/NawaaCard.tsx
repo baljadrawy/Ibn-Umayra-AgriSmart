@@ -1,5 +1,5 @@
 
-import { Calendar, Clock, CloudRain, Thermometer, Wind } from 'lucide-react';
+import { Calendar, Clock, CloudRain, Thermometer, Wind, Sprout, Star } from 'lucide-react';
 
 interface NawaaCardProps {
   nawaa: {
@@ -13,6 +13,9 @@ interface NawaaCardProps {
     startHijri?: string;
     endHijri?: string;
     duration: number;
+    bestDays?: string;
+    farmingScore?: number;
+    bestCropsSeason?: string;
     climate: {
       temperature: string;
       wind: string;
@@ -20,6 +23,33 @@ interface NawaaCardProps {
       notes: string;
     };
   };
+}
+
+function FarmingScoreBar({ score }: { score: number }) {
+  const color =
+    score >= 80 ? 'bg-green-500' :
+    score >= 60 ? 'bg-yellow-400' :
+    score >= 35 ? 'bg-orange-400' :
+    'bg-red-400';
+  const label =
+    score >= 80 ? '🟢 ممتاز' :
+    score >= 60 ? '🟡 جيد' :
+    score >= 35 ? '🟠 متوسط' :
+    '🔴 ضعيف';
+  return (
+    <div className="space-y-1.5 p-3 bg-muted/40 rounded-2xl border border-black/5">
+      <div className="flex justify-between items-center">
+        <span className="text-[10px] font-bold text-primary">{label} — {score}/100</span>
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <span className="text-[9px] font-bold uppercase">ملاءمة الزراعة</span>
+          <Sprout className="h-3 w-3" />
+        </div>
+      </div>
+      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+        <div className={`h-full ${color} transition-all duration-700 ease-out`} style={{ width: `${score}%` }} />
+      </div>
+    </div>
+  );
 }
 
 export default function NawaaCard({ nawaa }: NawaaCardProps) {
@@ -54,7 +84,7 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 mb-10 text-right">
+        <div className="grid grid-cols-2 gap-6 mb-6 text-right">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-muted-foreground justify-end">
               <span className="text-[10px] font-bold">الحرارة المتوقعة</span>
@@ -84,6 +114,24 @@ export default function NawaaCard({ nawaa }: NawaaCardProps) {
             <p className="text-lg font-bold">يوم {nawaa.day_in_nawaa} / {nawaa.duration}</p>
           </div>
         </div>
+
+        {/* مؤشر ملاءمة الزراعة */}
+        {nawaa.farmingScore !== undefined && (
+          <div className="mb-5">
+            <FarmingScoreBar score={nawaa.farmingScore} />
+          </div>
+        )}
+
+        {/* أفضل أيام الزراعة */}
+        {nawaa.bestDays && (
+          <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-2xl border border-primary/10 mb-5 text-right">
+            <div className="flex-1">
+              <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1">أفضل أيام الزراعة</p>
+              <p className="text-xs font-semibold text-primary">{nawaa.bestDays}</p>
+            </div>
+            <Star className="h-4 w-4 text-primary/60 mt-0.5 shrink-0" />
+          </div>
+        )}
       </div>
 
       <div className="space-y-6">
