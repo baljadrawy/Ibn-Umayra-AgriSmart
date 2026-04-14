@@ -36,6 +36,49 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID", "0"))
+
+# ──────────────────────────────────────────────
+# إدارة الإصدارات
+# ──────────────────────────────────────────────
+VERSION_FILE  = Path(__file__).parent / "VERSION"
+CHANGELOG_FILE = Path(__file__).parent / "CHANGELOG.md"
+LAST_VER_FILE  = Path("data/last_notified_version.txt")
+
+def get_current_version() -> str:
+    if VERSION_FILE.exists():
+        return VERSION_FILE.read_text().strip()
+    return "1.0.0"
+
+def get_last_notified_version() -> str:
+    if LAST_VER_FILE.exists():
+        return LAST_VER_FILE.read_text().strip()
+    return ""
+
+def save_last_notified_version(ver: str) -> None:
+    LAST_VER_FILE.parent.mkdir(exist_ok=True)
+    LAST_VER_FILE.write_text(ver)
+
+def parse_latest_changelog() -> str:
+    """يستخرج تغييرات الإصدار الأحدث من CHANGELOG.md"""
+    if not CHANGELOG_FILE.exists():
+        return "لا توجد تفاصيل متاحة."
+    lines = CHANGELOG_FILE.read_text(encoding="utf-8").splitlines()
+    result = []
+    in_section = False
+    for line in lines:
+        if line.startswith("## [") and not in_section:
+            in_section = True
+            continue
+        elif line.startswith("## [") and in_section:
+            break
+        elif in_section and line.strip():
+            # تحويل markdown بسيط لتلقرام
+            clean = line.replace("### جديد ✨", "✨ *الجديد:*")
+            clean = clean.replace("### تحسينات 🔧", "🔧 *تحسينات:*")
+            clean = clean.replace("- ", "• ")
+            result.append(clean)
+    return "\n".join(result[:15])  # أقصى 15 سطر
 
 # ──────────────────────────────────────────────
 # تتبع المستخدمين
@@ -451,11 +494,19 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         for u in sorted_users[:5]
     )
 
+    subs_count = sum(1 for u in users.values() if u.get("subscribed"))
+    version = get_current_version()
+    last_notified = get_last_notified_version()
+
     text = (
         f"📊 *إحصائيات البوت*\n"
         f"{'─' * 28}\n\n"
-        f"👥 إجمالي المستخدمين: *{total}*\n\n"
-        f"🕐 *آخر 5 مستخدمين:*\n{recent}"
+        f"🔖 الإصدار الحالي: *{version}*\n"
+        f"📨 آخر إشعار أُرسل عن: *{last_notified or 'لم يُرسل بعد'}*\n\n"
+        f"👥 إجمالي المستخدمين: *{total}*\n"
+        f"🔔 المشتركون في التنبيهات: *{subs_count}*\n\n"
+        f"🕐 *آخر 5 مستخدمين:*\n{recent}\n\n"
+        f"📣 لإرسال إشعار: /announce"
     )
     await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
 
@@ -479,10 +530,13 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🔔 *التنبيهات:*\n"
         "/subscribe — تفعيل: صباحي يومي + تنبيه دخول نجم جديد\n"
         "/unsubscribe — إيقاف جميع التنبيهات\n\n"
+        "🔖 *الإصدار والتحديثات:*\n"
+        "/version — الإصدار الحالي وآخر التغييرات\n\n"
         "*مصدر البيانات:*\n"
         "• التقويم: تقويم ابن عميرة للأنواء (30 نجماً)\n"
         "• الطقس: Open-Meteo (مجاني، محدّث كل ساعة)\n"
         "• المناطق: 5 مناطق مناخية، 60+ مدينة\n\n"
+        f"🔖 الإصدار: *{get_current_version()}*\n"
         "👨‍💻 *المطور:* @jadrawy\n"
         "🌐 *الموقع:* https://ibn-umaira.web.app"
     )
@@ -800,6 +854,110 @@ async def compare_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     await update.message.reply_text(text + extra, parse_mode=ParseMode.MARKDOWN)
 
 
+# ──────────────────────────────────────────────
+# إرسال إشعار تحديث لجميع المشتركين
+# ──────────────────────────────────────────────
+async def broadcast_update(bot, version: str, custom_text: str = "") -> int:
+    """يرسل رسالة التحديث لجميع المشتركين ويعيد عدد من تم إرسالها لهم"""
+    users = load_users()
+    subscribers = {uid: u for uid, u in users.items() if u.get("subscribed")}
+    if not subscribers:
+        return 0
+
+    changelog = custom_text or parse_latest_changelog()
+    text = (
+        f"🚀 *تحديث جديد — الإصدار {version}*\n"
+        f"{'─' * 30}\n\n"
+        f"{changelog}\n\n"
+        f"{'─' * 30}\n"
+        f"🔹 /score مؤشر الملاءمة\n"
+        f"🔹 /bestdays أفضل أيام الزراعة\n"
+        f"🔹 /help قائمة الأوامر الكاملة"
+    )
+
+    sent = 0
+    for uid_str in subscribers:
+        try:
+            await bot.send_message(
+                chat_id=int(uid_str),
+                text=text,
+                parse_mode=ParseMode.MARKDOWN
+            )
+            sent += 1
+            await asyncio.sleep(0.05)  # تجنب rate limit
+        except Exception as e:
+            logger.warning(f"Failed to send update to {uid_str}: {e}")
+
+    save_last_notified_version(version)
+    return sent
+
+
+async def check_and_notify_update(app) -> None:
+    """يُستدعى عند بدء تشغيل البوت — يتحقق إذا كان هناك إصدار جديد لم يُشعر به"""
+    current = get_current_version()
+    last    = get_last_notified_version()
+    if current and current != last:
+        logger.info(f"New version detected: {current} (last notified: {last})")
+        sent = await broadcast_update(app.bot, current)
+        logger.info(f"Update notification sent to {sent} subscribers.")
+
+
+# ──────────────────────────────────────────────
+# /announce — أمر الأدمن للإشعار اليدوي
+# ──────────────────────────────────────────────
+async def announce_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """إرسال إشعار مخصص لجميع المشتركين — للأدمن فقط"""
+    if update.effective_user.id != ADMIN_ID:
+        await update.message.reply_text("⛔ هذا الأمر للمشرف فقط.")
+        return
+
+    custom_text = " ".join(context.args) if context.args else ""
+    version = get_current_version()
+
+    if not custom_text:
+        # عرض معاينة
+        changelog = parse_latest_changelog()
+        users = load_users()
+        subs_count = sum(1 for u in users.values() if u.get("subscribed"))
+        preview = (
+            f"📣 *معاينة الإشعار — الإصدار {version}*\n"
+            f"{'─' * 28}\n\n"
+            f"{changelog}\n\n"
+            f"{'─' * 28}\n"
+            f"👥 سيُرسل لـ *{subs_count}* مشترك\n\n"
+            f"للإرسال الفوري: `/announce send`\n"
+            f"أو بنص مخصص: `/announce نص رسالتك هنا`"
+        )
+        await update.message.reply_text(preview, parse_mode=ParseMode.MARKDOWN)
+        return
+
+    if custom_text.strip().lower() == "send":
+        custom_text = ""  # سيستخدم CHANGELOG
+
+    await update.message.reply_text("⏳ جاري الإرسال...")
+    sent = await broadcast_update(context.bot, version, custom_text)
+    await update.message.reply_text(
+        f"✅ تم إرسال الإشعار بنجاح!\n"
+        f"📨 وصل لـ *{sent}* مشترك\n"
+        f"🔖 الإصدار: {version}",
+        parse_mode=ParseMode.MARKDOWN
+    )
+
+
+# ──────────────────────────────────────────────
+# /version — عرض الإصدار الحالي
+# ──────────────────────────────────────────────
+async def version_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    version = get_current_version()
+    changelog = parse_latest_changelog()
+    text = (
+        f"ℹ️ *الإصدار الحالي: {version}*\n"
+        f"{'─' * 28}\n\n"
+        f"{changelog}"
+    )
+    await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+
+
 async def subscribe_alerts(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """اشترك في التنبيهات الصباحية اليومية + تنبيه دخول النجم"""
     chat_id = update.effective_chat.id
@@ -898,11 +1056,14 @@ def main() -> None:
     app.add_handler(CommandHandler("subscribe",   subscribe_alerts))
     app.add_handler(CommandHandler("unsubscribe", unsubscribe_alerts))
     app.add_handler(CommandHandler("stats",       stats))
-    # أوامر جديدة
+    # أوامر ذكية
     app.add_handler(CommandHandler("score",       farming_score_cmd))
     app.add_handler(CommandHandler("bestdays",    bestdays_cmd))
     app.add_handler(CommandHandler("ask",         ask_cmd))
     app.add_handler(CommandHandler("compare",     compare_cmd))
+    app.add_handler(CommandHandler("version",     version_cmd))
+    # أوامر الأدمن
+    app.add_handler(CommandHandler("announce",    announce_cmd))
 
     # أزرار inline
     app.add_handler(CallbackQueryHandler(button_handler))
@@ -921,6 +1082,7 @@ def main() -> None:
         BotCommand("setlocation", "تغيير المدينة او المنطقة"),
         BotCommand("subscribe",   "تفعيل التنبيهات الذكية"),
         BotCommand("unsubscribe", "ايقاف جميع التنبيهات"),
+        BotCommand("version",     "الاصدار الحالي وآخر التحديثات"),
         BotCommand("help",        "قائمة الاوامر والمساعدة"),
     ]
 
@@ -928,6 +1090,8 @@ def main() -> None:
         await app.bot.set_my_commands(commands)
         info = await app.bot.get_me()
         print(f"✅ البوت يعمل: @{info.username}")
+        # كشف تلقائي عن إصدار جديد وإشعار المشتركين
+        await check_and_notify_update(app)
 
     app.post_init = post_init
 
