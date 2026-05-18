@@ -19,10 +19,13 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# نسخ الملفات الضرورية فقط من مرحلة البناء
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# نسخ الملفات الضرورية فقط من مرحلة البناء (ملكية للمستخدم node)
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+
+# تشغيل بمستخدم غير-root للأمان
+USER node
 
 EXPOSE 3000
 
