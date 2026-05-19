@@ -38,6 +38,9 @@ logger = logging.getLogger(__name__)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 ADMIN_ID = int(os.getenv("ADMIN_CHAT_ID", "0"))
 
+if not TOKEN or ADMIN_ID == 0:
+    raise SystemExit("❌ TELEGRAM_BOT_TOKEN و ADMIN_CHAT_ID مطلوبان في متغيرات البيئة")
+
 # ──────────────────────────────────────────────
 # إدارة الإصدارات
 # ──────────────────────────────────────────────
@@ -723,7 +726,10 @@ async def ask_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         )
         return
 
-    question = " ".join(args)
+    question = " ".join(args).replace("{{", "").replace("}}", "").strip()
+    if len(question) > 400:
+        await update.message.reply_text("❌ السؤال طويل جداً (الحد الأقصى 400 حرف)")
+        return
     offset = get_user_offset(context)
     location = get_user_location_label(context)
     zone_id = context.user_data.get("zone_id", "highlands")
@@ -911,7 +917,7 @@ async def announce_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         await update.message.reply_text("⛔ هذا الأمر للمشرف فقط.")
         return
 
-    custom_text = " ".join(context.args) if context.args else ""
+    custom_text = (" ".join(context.args) if context.args else "").replace("{{", "").replace("}}", "").strip()[:500]
     version = get_current_version()
 
     if not custom_text:

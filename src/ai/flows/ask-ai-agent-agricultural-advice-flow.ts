@@ -14,9 +14,9 @@ import { CLIMATE_ZONES_DATA, CALENDAR_2026, NAWAA_RECOMMENDATIONS } from '@/lib/
 // --- Input and Output Schemas ---
 
 const AskAIAgentAgriculturalAdviceInputSchema = z.object({
-  question: z.string().describe("The farmer's natural language question about crops, weather, or agricultural calendar."),
-  zone_id: z.string().describe("The ID of the farmer's climate zone (e.g., 'west', 'central')."),
-  currentDate: z.string().describe("The current Gregorian date in YYYY-MM-DD format."),
+  question: z.string().max(400).describe("The farmer's natural language question about crops, weather, or agricultural calendar."),
+  zone_id: z.string().regex(/^[a-z_]+$/).describe("The ID of the farmer's climate zone (e.g., 'west', 'central')."),
+  currentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("The current Gregorian date in YYYY-MM-DD format."),
 });
 export type AskAIAgentAgriculturalAdviceInput = z.infer<typeof AskAIAgentAgriculturalAdviceInputSchema>;
 
@@ -88,7 +88,11 @@ const askAIAgentAgriculturalAdviceFlow = ai.defineFlow(
     outputSchema: AskAIAgentAgriculturalAdviceOutputSchema,
   },
   async (input) => {
-    const { output } = await agriculturalAdvisorPrompt(input);
+    const sanitized = {
+      ...input,
+      question: input.question.replace(/[{}]/g, '').trim().slice(0, 400),
+    };
+    const { output } = await agriculturalAdvisorPrompt(sanitized);
     if (!output) throw new Error('Failed to get a response.');
     return output;
   }
